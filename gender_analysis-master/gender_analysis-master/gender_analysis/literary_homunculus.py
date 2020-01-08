@@ -29,20 +29,30 @@ class Homunculus:
             self._body_dict[part] = count
         except KeyError:
             raise InvalidBodyPartError # Way I envision it, we preload all dict entries so this error should never raise if done properly.
+            
+    def add_body_dict_count(self, part, inc):
+        try:
+            self._body_dict[part] += inc
+        except KeyError:
+            raise InvalidBodyPartError
 
 class InvalidBodyPartError(Exception):
     def __init__(self):
         pass
+
+arm_words = ['arms','arms','armed','arming']
+leg_words = ['legs','leg','legged','leggings']
+# etc.
     
-document_metadata = {'author': 'Austen, Jane', 'title': 'Persuasion', 'date': '1818',
-                     'filename': 'austen_persuasion.txt', 'filepath': Path(TEST_DATA_PATH, 'sample_novels', 'texts', 'austen_persuasion.txt')}
+#document_metadata = {'author': 'Austen, Jane', 'title': 'Persuasion', 'date': '1818',
+#                     'filename': 'austen_persuasion.txt', 'filepath': Path(TEST_DATA_PATH, 'sample_novels', 'texts', 'austen_persuasion.txt')}
 # All documents are initialized with metadata in the form of a dict such as the one above. However, putting
 # all the .txt files into a folder will allow you to create a Corpus object, which will automate all that
 # shit; you just have to make a .csv file in the same directory with the top rows as fields, e.g. 'author, title, date_created',
 # all separated by commas, and then everything below it is the values starting with the first .txt file, all separated by 
 # commas in the same order. 
 
-
+##############################################################################
 #austen = Document(document_metadata)
 #print(type(austen.text))
 #print(len(austen.text))
@@ -56,10 +66,10 @@ c = Corpus(path)
 print(type(c.documents), len(c))
 h = Homunculus()
 
-for part in ('arms','legs','lips'): #etc. again, I suppose you'll have to do all the variations, e.g. 'arms','armed','arming',etc.
-    total_part_hits = 0
-    for doc in c.documents:
-        start_time = time.perf_counter()
+ #etc. again, I suppose you'll have to do all the variations, e.g. 'arms','armed','arming',etc.
+for doc in c.documents:
+    
+    
     ####################################69############################################################
         # My really simplistic algorithm for counting up simple nouns in each doc within the test corpus.
         
@@ -70,13 +80,21 @@ for part in ('arms','legs','lips'): #etc. again, I suppose you'll have to do all
     #    print(hits)
         
     ##############420#######################################1337######################################
-        doc_hits = doc.get_count_of_word(part)
-        total_part_hits += doc_hits # Related method get_count_of_word() just gives number of hits instead of percentage
-                                 # My advice would be to systematically go through the list of body parts that we agree on
-                                 # and then for each one, check all the related words, e.g. 'arm','arms','armed','arming',etc.
-                                 # What's nice is that you only need to get the word counts of any doc once, and then there's a dict
-                                 # stored in the Document instance that maps all words to their count.
-        print(doc_hits)
-        print("--- %s seconds ---" % (time.perf_counter() - start_time))
+    for part_type in (arm_words, leg_words):
+        part_name = part_type[0]
+        total_part_hits = 0
+        
+        for term in part_type:
+            start_time = time.perf_counter()
+            
+            term_hits = doc.get_count_of_word(term)
+            total_part_hits += term_hits 
+                                     # My advice would be to systematically go through the list of body parts that we agree on
+                                     # and then for each one, check all the related words, e.g. 'arm','arms','armed','arming',etc.
+                                     # What's nice is that you only need to get the word counts of any doc once, and then there's a dict
+                                     # stored in the Document instance that maps all words to their count.
+#            print(doc.word_count)
+            print(total_part_hits)
+            print("--- %s seconds ---" % (time.perf_counter() - start_time))
     
-    h.set_body_dict_count(part, total_part_hits)
+        h.add_body_dict_count(part_name, total_part_hits)
