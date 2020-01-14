@@ -10,12 +10,24 @@
       </Scene>
       <div v-text="`Frames: ${frames}`" style="position: absolute; color: white; bottom: 0; padding: 15px"></div>
     </div>
+      <Slide id="slide"/>
   </div>
 </template>
 
 <script>
+
+import Slide from './Slider.vue';
+// var sliderval = document.getElementById("slide");
+// var output = sliderval.value;
+// sliderval.oninput = function() {
+//   output = this.value;
+// }
+
 export default {
   name: 'Homunculus',
+  components: {
+    Slide
+  },
   props: {
     msg: String
   },

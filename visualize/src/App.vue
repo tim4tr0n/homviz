@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <Homunculus msg="Welcome to Your Vue.js App" id="homunculus"/>
-    <p>Bottom Text</p>
   </div>
 </template>
 
