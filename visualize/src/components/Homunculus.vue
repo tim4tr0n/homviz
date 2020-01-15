@@ -1,5 +1,5 @@
 <template>
-  <div class="hello">
+  <div class="homunculus">
     <div>
       <!-- events take either a method name or logic content-->
       <!-- the complete event happens after all children have been initialized and bound-->
