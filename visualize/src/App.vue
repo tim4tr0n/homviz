@@ -3,6 +3,7 @@
     <Homunculus id="homunculus"/>
     <Stats id="stats"/>
     <Slide id="slide"/>
+
   </div>
 </template>
 

@@ -1,15 +1,18 @@
 <template>
   <div class="slidecontainer">
-    <input type="range" min="1" max="100" value="1" class="slider" id="slide">
+    <input @input="changed" name="flavor" type="range" min="1" max="100" value="1" class="slider" id="slide">
   </div>
 </template>
 
 <script>
-  export default{
-      name: 'Slide',
+export default {
+  methods: {
+    changed: function(event) {
+      this.$store.commit('change', event.target.value)
+    }
   }
+}
 </script>
-
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>

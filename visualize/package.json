@@ -14,9 +14,10 @@
     "@firebase/firestore": "^1.9.2",
     "axios": "^0.19.1",
     "core-js": "^3.4.4",
-    "vue": "^2.6.10",
+    "vue": "^2.6.11",
     "vue-babylonjs": "^1.0.0-beta.7",
-    "vue-firestore": "^0.3.22"
+    "vue-firestore": "^0.3.22",
+    "vuex": "^3.1.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",
