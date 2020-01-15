@@ -10,6 +10,7 @@
   "dependencies": {
     "@babylonjs/core": "^4.0.3",
     "@babylonjs/loaders": "^4.0.3",
+    "axios": "^0.19.1",
     "core-js": "^3.4.4",
     "vue": "^2.6.10",
     "vue-babylonjs": "^1.0.0-beta.7"
