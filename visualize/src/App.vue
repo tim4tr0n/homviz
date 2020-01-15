@@ -1,18 +1,15 @@
 <template>
   <div id="app">
-    <Homunculus msg="Literary Homunculus" id="homunculus"/>
+    <Homunculus id="homunculus"/>
+    <Stats id="stats"/>
     <Slide id="slide"/>
-    <ul>
-      <li v-for="book in books" v-bind:key="book.idx">
-        {{ book.name }} 
-      </li>
-    </ul>
   </div>
 </template>
 
 <script>
   import Homunculus from './components/Homunculus.vue';
   import Slide from './components/Slider.vue';
+  import Stats from './components/Stats.vue';
   import { db } from './firebaseConfig';
 
   export default {
@@ -29,7 +26,8 @@
     },
     components: {
       Homunculus,
-      Slide
+      Slide,
+      Stats
     }
   }
 </script>
@@ -45,6 +43,12 @@
   }
   #homunculus {
     height: 90%;
-    vertical-align: top;
+    vertical-align: "absolute";
+    z-index: -1;
+  }
+  #stats {
+    position: "relative";
+    bottom: 0;
+    left: 0;
   }
 </style>

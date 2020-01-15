@@ -17,9 +17,6 @@
 
 export default {
   name: 'Homunculus',
-  props: {
-    msg: String
-  },
   data() {
     return {
       box: null,
