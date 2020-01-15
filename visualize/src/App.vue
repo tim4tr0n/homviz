@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <Homunculus msg="Literary Homunculus" id="homunculus"/>
-    <Slide id="slide"/>
+    <Slide/>
     <ul>
       <li v-for="book in books" v-bind:key="book.idx">
         {{ book.name }} 
