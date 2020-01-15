@@ -1,16 +1,19 @@
 <template>
   <div id="app">
     <Homunculus msg="Welcome to Your Vue.js App" id="homunculus"/>
+    <Slide id="slide"/>
   </div>
 </template>
 
 <script>
 import Homunculus from './components/Homunculus.vue';
+import Slide from './components/Slider.vue';
 
 export default {
   name: 'app',
   components: {
-    Homunculus
+    Homunculus,
+    Slide
   }
 }
 </script>
