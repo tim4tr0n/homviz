@@ -1,0 +1,5 @@
+*.rdf
+*.tmp
+/catalog/
+serviceAccountKeys/
+.vscode/
