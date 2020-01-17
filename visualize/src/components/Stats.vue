@@ -4,7 +4,7 @@
     <input type="range" min="1" max="100" value="1" class="slider" id="slide">
     <ul>
         <li v-for="book in books" v-bind:key="book.idx">
-        {{ book.name }} 
+        {{ book.title }} 
         </li>
     </ul>
   </div>

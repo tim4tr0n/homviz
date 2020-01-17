@@ -4,6 +4,7 @@
       <!-- events take either a method name or logic content-->
       <!-- the complete event happens after all children have been initialized and bound-->
       <Scene @complete="complete" @before-render$="beforeRender" @after-render$="++frames">
+        <Asset src="../assets/dummy3.babylon" :scaling="[0.02, 0.02, 0.02]" :position="[4, 0.5, 0]"></Asset>
         <!-- you can use v-model bindings instead of event entity reference-->
         <Box :position="[-2, 0, 5]" :scaling="scale.box" v-model="box"></Box>
         <Sphere :position="[2, 0, 5]" :scaling="scale.sphere" @entity="onSphere"></Sphere>
