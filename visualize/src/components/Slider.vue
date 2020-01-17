@@ -1,16 +1,16 @@
 <template>
   <div class="slidecontainer">
-    <input @input="changed" name="flavor" type="range" min="1" max="100" value="1" class="slider" id="slide">
+    <input @input="changeSlider" name="sliderValue" type="range" min="1" max="100" value="1" step="0.1" class="slider">
   </div>
 </template>
 
 <script>
 export default {
   methods: {
-    changed: function(event) {
-      this.$store.commit('change', event.target.value)
+    changeSlider: function(event) {
+      this.$store.commit('changeSlider', event.target.value)
     }
-  }
+  },
 }
 </script>
 
