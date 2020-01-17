@@ -27,6 +27,7 @@
     },
 
     computed: {
+      // TODO : fix these awful naming conventions. will inevitably come when sliderPosition is mapped to homunculus body parts
       slider() {
           return {
               sliderPosition: this.$store.getters.sliderPosition
