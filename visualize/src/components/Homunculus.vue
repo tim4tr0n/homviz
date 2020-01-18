@@ -4,10 +4,11 @@
       <!-- events take either a method name or logic content-->
       <!-- the complete event happens after all children have been initialized and bound-->
       <Scene @complete="complete" @before-render$="beforeRender" @after-render$="++frames">
-        <Asset src="../assets/dummy3.babylon" :scaling="[0.02, 0.02, 0.02]" :position="[4, 0.5, 0]"></Asset>
         <!-- you can use v-model bindings instead of event entity reference-->
+        <!-- <Asset src="../assets/dummy3.babylon" :scaling="[0.02, 0.02, 0.02]" :position="[4, 0.5, 0]"></Asset>
+        <Sphere :position="[2, 0, 5]" :scaling="scale.sphere" @entity="onSphere"></Sphere> -->
+        <Asset src="../assets/dummy3.babylon" v-model="dummy" :position="[4, 0.5, 0]"></Asset>
         <Box :position="[-2, 0, 5]" :rotation="rotate.box" :scaling="scale.box" v-model="box"></Box>
-        <Sphere :position="[2, 0, 5]" :scaling="scale.sphere" @entity="onSphere"></Sphere>
       </Scene>
       <div v-text="`Frames: ${frames}`" style="position: absolute; color: white; bottom: 0; padding: 15px"></div>
     </div>
@@ -21,7 +22,7 @@ export default {
   data() {
     return {
       box: null,
-      sphere: null,
+      dummy: null,
       time: performance.now(),
       frames: 0,
     };
@@ -41,7 +42,6 @@ export default {
       let b = 2 + Math.sin(this.time * 0.001);
       return {
         box: [a, b, 1],
-        sphere: [b, a, 1],
       };
     },
     rotate() {
@@ -58,16 +58,10 @@ export default {
       this.time = performance.now();
     },
 
-    onSphere(event) {
-      console.log('onSphere', event);
-      // the entity event includes entity reference
-      this.sphere = event.entity;
-    },
-
     complete(event) {
       console.log('complete', event);
       console.log('box', this.box);
-      console.log('sphere', this.sphere);
+      console.log('dummy', this.dummy);
     },
   },
 };
