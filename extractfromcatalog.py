@@ -101,16 +101,17 @@ def findSubject(path):
     # we need to the subject of the book
     interstitial_predicate = rdflib.term.URIRef('http://purl.org/dc/terms/subject')
     interstitial_list = [i for i in graph.objects(root_subject, interstitial_predicate)]
-    subject_list = [i for i in graph.predicate_objects(interstitial_list[0])]
-
+    if interstitial_list:
+        subject_list = [i for i in graph.predicate_objects(interstitial_list[0])]    
+        linear_subject_list = []
+        linear_subject_list.append(subject_list[0][0])
+        linear_subject_list.append(subject_list[0][1])
+        linear_subject_list.append(subject_list[1][0])
+        linear_subject_list.append(subject_list[1][1])
     
-    linear_subject_list = []
-    linear_subject_list.append(subject_list[0][0])
-    linear_subject_list.append(subject_list[0][1])
-    linear_subject_list.append(subject_list[1][0])
-    linear_subject_list.append(subject_list[1][1])
+        return [str(i) for i in linear_subject_list]
     
-    return [str(i) for i in linear_subject_list]
+    return []
 
 def findSubjectCode(path):
     for _ in range(100):
