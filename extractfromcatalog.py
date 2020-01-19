@@ -1,4 +1,4 @@
-import rdflib, wget, re, os, firebase_admin
+import rdflib, wget, re, os, firebase_admin, json
 from firebase_admin import credentials
 from firebase_admin import firestore
 
@@ -8,11 +8,13 @@ def loadRDF(path):
     g.load(path)
     return g
 
-def findTitle(path):
-    """Returns the title of the book with the given path."""
+def findID(path):
+    """Returns the ID of the book with given path."""
     extensionless = path.split(".rdf")[0]
-    bookID = extensionless.split("catalog/pg")[1]
-
+    return extensionless.split("catalog/pg")[1]
+    
+def findTitle(path):
+    bookID = findID(path)
     graph = loadRDF(path)
 
     # generate the subject that we're going to be searching with
@@ -29,9 +31,7 @@ def findTitle(path):
 
 def findAuthor(path):
     """Returns the author of the book with the given path."""
-    extensionless = path.split(".rdf")[0]
-    bookID = extensionless.split("catalog/pg")[1]
-
+    bookID = findID(path)
     graph = loadRDF(path)
 
     # generate the subject that we're going to be searching with
@@ -54,11 +54,44 @@ def findAuthor(path):
     
     return None
 
+def findSource(path):
+    """Returns a URL to the raw .txt source on Project Gutenberg for a given catalog file."""
+    bookID = findID(path)
+    graph = loadRDF(path)
+
+    # generate the subject that we're going to be searching with
+    root_subject = rdflib.term.URIRef('http://www.gutenberg.org/ebooks/' + bookID)
+    hasFormat_predicate = rdflib.term.URIRef('http://purl.org/dc/terms/hasFormat')
+    hasFormat_list = [i for i in graph.objects(root_subject, hasFormat_predicate)]
+    hasFormat_string_list = [str(i) for i in hasFormat_list]
+    resource_list = [i for i in hasFormat_string_list if (('.txt' in i) and ('.txt.utf-8' not in i))]
+
+    if resource_list:
+        return resource_list[0]
+    
+    else:
+        return None
+
+def findLanguage(path):
+    """Returns the author of the book with the given path."""
+    bookID = findID(path)
+    graph = loadRDF(path)
+
+    # generate the subject that we're going to be searching with
+    root_URI = 'http://www.gutenberg.org/ebooks/' + bookID
+    root_subject = rdflib.term.URIRef(root_URI)
+    
+    # find the creator node
+    interstitial_predicate  = rdflib.term.URIRef('http://purl.org/dc/terms/language')
+    interstitial_list = [i for i in graph.objects(root_subject, interstitial_predicate)]
+
+    subject_list = [i for i in graph.predicate_objects(interstitial_list[0])]
+    
+    return str(subject_list[0][1])
+
 def findSubject(path):
     """Returns the subject of the book with the given path"""
-    extensionless = path.split(".rdf")[0]
-    bookID = extensionless.split("catalog/pg")[1]
-
+    bookID = findID(path)
     graph = loadRDF(path)
 
     # generate the subject that we're going to be searching with
@@ -80,28 +113,22 @@ def findSubject(path):
     return [str(i) for i in linear_subject_list]
 
 def findSubjectCode(path):
-    while True:
+    for _ in range(100):
         for subject in findSubject(path):
             if len(subject) == 2:
                 return subject
 
+    return None
+
 def downloadBook(path):
     """Downloads the book given by the catalog file."""
-    extensionless = path.split(".rdf")[0]
-    bookID = extensionless.split("catalog/pg")[1]
+    bookID = findID(path)
 
-    graph = loadRDF(path)
+    source = findSource(path)
 
-    # generate the subject that we're going to be searching with
-    root_subject = rdflib.term.URIRef('http://www.gutenberg.org/ebooks/' + bookID)
-    hasFormat_predicate = rdflib.term.URIRef('http://purl.org/dc/terms/hasFormat')
-    hasFormat_list = [i for i in graph.objects(root_subject, hasFormat_predicate)]
-    hasFormat_string_list = [str(i) for i in hasFormat_list]
-    resource_list = [i for i in hasFormat_string_list if (('.txt' in i) and ('.txt.utf-8' not in i))]
-
-    if resource_list != []:
+    if source:
         try:
-            wget.download(resource_list[0], str(bookID) + '.txt', bar=None)
+            wget.download(source, str(bookID) + '.txt', bar=None)
         
         except KeyboardInterrupt:
             exit()
@@ -115,66 +142,88 @@ def downloadBook(path):
     else:
         return None
 
-def getWordList(path):
-    """Takes in a path to a .txt containing all the words that
-    mean body parts in English, returns a list of words."""
+def getWordDict(path):
+    """Takes in a path to a .json file containing all the words
+    that mean body parts in a bunch of languages, returns a
+    dictonary of languages, words, and their english equivalents."""
 
     file = open(path, 'r')
-    body_part_word_list = file.readlines()
+    word_dict = json.load(file)
     file.close()
-
-    for i in range(len(body_part_word_list)):
-        word = body_part_word_list[i]
-        body_part_word_list[i] = word.split('\n')[0]
     
-    return body_part_word_list
+    return word_dict
 
-def countWords(book_path, body_part_word_list):
-    """Takes in a path to a .txt file and a list of body part words,
+def countWords(book_path, book_dict, wordlist_dict):
+    """Takes in a path to a .txt file and a dictionary of body part words,
     and returns a dictionary of each word and how often it occurs."""
 
+    # open book file and read to file
     file = open(book_path, encoding="utf8", errors='ignore')
     book = file.read()
     file.close()
     
+    # remove punctuation from the book, and split into a list of words
     book_words = re.split(r"""[-.!;',~:\s]\s*""", book)
-    frequency_dict = {}
 
-    for word in book_words:
-        word = word.lower()
+    # select proper dictionary to use
+    # (if the two character language code is already stored in the book dictionary, use it)
+    # (if not, then parse the book to find it)
+    lang_dict = {}
 
-        if word in body_part_word_list:
-            if word in frequency_dict.keys():
-                frequency_dict[word] += 1
-            else:
-                frequency_dict[word] = 1
+    if 'language' in book_dict.keys():
+        lang_code = book_dict['language']
     
-    return frequency_dict
+    else:
+        lang_code = findLanguage(book_path)
 
-def createBookDict(rdf_path):
+    # check that our .json wordlist has an entry for the language we want
+    if lang_code in wordlist_dict.keys():
+        lang_dict = wordlist_dict[lang_code]
+    
+    else:
+        print("Warning! Text is of language", lang_code, "which is not in the wordlist!")
+        return None
+    
+    # we now have a dictionary specific to the language of the book we're parsing, so let's parse the book
+    for word in book_words:
+        if word in lang_dict.keys(): #if the word is recognized as a body part word, add it to the dictionary
+            english_equivalent = lang_dict[word]
+
+            # if it's in the dictionary, just add one to the frequency
+            if english_equivalent in book_dict.keys():
+                book_dict[english_equivalent] += 1
+            
+            # otherwise, add itself to the dictionary
+            else:
+                book_dict[english_equivalent] = 1
+         
+
+    return book_dict
+
+def createBookDict(rdf_path, wordlist_dict):
     book_path = downloadBook(rdf_path)
-    temp_dict = {}
     
     if book_path == None:
         print("Warning! No external resource candidate found for file", rdf_path)
+        return None
 
     else:
-        temp_dict = countWords(book_path, body_part_word_list)
+        book_dict = {
+            'title' : findTitle(rdf_path),
+            'author' : findAuthor(rdf_path),
+            'source' : findSource(rdf_path),
+            'language' : findLanguage(rdf_path),
+            'subject' : findSubjectCode(rdf_path),
+            'id' : findID(rdf_path)
+        }
+
+        countWords(book_path, book_dict, wordlist_dict)
         os.remove(book_path)
-
-        temp_dict['title'] = findTitle(rdf_path)
-        temp_dict['author'] = findAuthor(rdf_path)
-        #temp_dict['subject'] = findSubjectCode(rdf_path)
-
-        extensionless = rdf_path.split(".rdf")[0]
-        temp_dict['id'] = extensionless.split("catalog/pg")[1]
-
-    return temp_dict
-
+        return book_dict
 
 # load file
-wordlist_path = "wordlist.txt"
-body_part_word_list = getWordList(wordlist_path)
+wordlist_path = "wordlist.json"
+wordlist_dict = getWordDict(wordlist_path)
 
 # get list of all files in directory
 catalog_files = sorted([('catalog/' + f) for f in os.listdir('catalog/') if os.path.isfile(os.path.join('catalog/', f))])
@@ -186,8 +235,7 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 for catalog_file in catalog_files:
-    book_dict = createBookDict(catalog_file)
-    
+    book_dict = createBookDict(catalog_file, wordlist_dict)
     if book_dict:
         doc_ref = db.collection(u'books').document(book_dict['id'])    
         doc_ref.set(book_dict)
