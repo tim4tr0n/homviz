@@ -11,20 +11,9 @@
   import Homunculus from './components/Homunculus.vue';
   import Slide from './components/Slider.vue';
   import Stats from './components/Stats.vue';
-  import { db } from './firebaseConfig';
 
   export default {
     name: 'app',
-    data() {
-      return {
-        books: []
-      }
-    },
-    firestore() {
-      return {
-        books: db.collection('books'),
-      }
-    },
     components: {
       Homunculus,
       Slide,

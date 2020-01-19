@@ -1,10 +1,10 @@
 <template>
   <div class="slidecontainer">
     <h1>Homunculus Info</h1>
-    <input type="range" min="1" max="100" value="1" class="slider" id="slide">
+    <p> <strong> spinny spinny: </strong> {{ slider.sliderPosition }} </p>
     <ul>
-        <li v-for="book in books" v-bind:key="book.idx">
-        {{ book.name }} 
+        <li v-for="book in books.slice(0,2)" v-bind:key="book.idx">
+        {{ book.title }} 
         </li>
     </ul>
   </div>
@@ -12,11 +12,12 @@
 
 <script>
   import { db } from '../firebaseConfig';
-  export default{
+  export default {
     name: 'Stats',
     data() {
         return {
-            books: []
+            books: [],
+            sliderPosition: this.$store.getters.sliderPosition
         }
     },
     firestore() {
@@ -24,6 +25,15 @@
             books: db.collection('books'),
         }
     },
+
+    computed: {
+      // TODO : fix these awful naming conventions. will inevitably come when sliderPosition is mapped to homunculus body parts
+      slider() {
+          return {
+              sliderPosition: this.$store.getters.sliderPosition
+          }
+      }
+    }
   }
 </script>
 

@@ -5,15 +5,23 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
     state: {
-      flavor: ''
+      bodyState: 3,
+      sliderPosition: 0,
     },
     mutations: {
-      change(state, flavor) {
-        state.flavor = flavor
+      changeSlider(state, value) {
+        console.log("global slider state changed");
+        console.log(value)
+        state.sliderPosition = value
+      },
+      changeBodyState(state, value) {
+        state.bodyState = value
       }
     },
     getters: {
-      flavor: state => state.flavor
-    }
+      bodyState: state => state.bodyState,
+      sliderPosition: state => state.sliderPosition
+    },
+    strict: process.env.NODE_ENV !== 'production'
   })
   
