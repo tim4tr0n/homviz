@@ -1,7 +1,7 @@
 <template>
   <div class="slidecontainer">
     <h1>Homunculus Info</h1>
-    <p> <strong> spinny spinny: </strong> {{ slider.sliderPosition }} </p>
+    <p> <strong> pointy pointy: </strong> {{ slider.sliderPosition }} </p>
     <ul>
         <!-- <li v-for="book in books.slice(0,2)" v-bind:key="book.idx">
         {{ book.title }} 

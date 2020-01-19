@@ -7,7 +7,8 @@
         <!-- you can use v-model bindings instead of event entity reference-->
         <Camera type="arcRotate" :target="[0,1,0]" :radius="5" :alpha="Math.PI/4"></Camera>
         <HemisphericLight></HemisphericLight>
-        <Asset src="https://srv-file4.gofile.io/download/Tryf1D/dummy3.babylon" v-model="dummy" :rotation="rotate.dummy"></Asset>
+        <Asset src="https://srv-file4.gofile.io/download/Tryf1D/dummy3.babylon"></Asset>
+        <Cylinder :rotation="[Math.PI/2,0,0]" :position="position.twoinpp" :scaling="scale.twoinpp" v-model="twoinpp"></Cylinder>
       </Scene>
       <div v-text="`Frames: ${frames}`" style="position: absolute; color: white; bottom: 0; padding: 15px"></div>
     </div>
@@ -20,7 +21,7 @@ export default {
   name: 'Homunculus',
   data() {
     return {
-      dummy: null,
+      twoinpp: null,
       time: performance.now(),
       frames: 0,
     };
@@ -35,20 +36,29 @@ export default {
   },
 
   computed: {
-    // scale() {
-    //   let a = 2 + Math.cos(this.time * 0.001);
-    //   let b = 2 + Math.sin(this.time * 0.001);
-    //   return {
-    //     box: [a, b, 1],
-    //   };
-    // },
-    rotate() {
-      let y = this.$store.getters.sliderPosition;
+    scale() {
+      let a = this.$store.getters.sliderPosition * 0.005;
 
       return {
-        dummy: [0, y, 0]
+        twoinpp: [0.05, a, 0.05]
+      };
+    },
+
+    position() {
+      let b = (this.$store.getters.sliderPosition * 0.005);
+
+      return {
+        twoinpp: [0,0.9,b]
       }
     }
+
+    // rotate() {
+    //   let y = this.$store.getters.sliderPosition;
+
+    //   return {
+    //     dummy: [0, y, 0]
+    //   }
+    // }
   },
 
   methods: {
@@ -64,6 +74,7 @@ export default {
 
     complete() {
       console.log('dummy', this.dummy);
+      console.log('twoinpp', this.twoinpp);
     },
   },
 };
