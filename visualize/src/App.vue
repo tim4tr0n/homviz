@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <Homunculus id="homunculus"/>
-    <Stats id="stats"/>
+    
     <Slide id="slide"/>
-
+    <Stats id="stats"/>
+    <Homunculus id="homunculus"/>
   </div>
 </template>
 
@@ -29,16 +29,23 @@
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-    margin-top: 2px;
+    margin-top: -8px;
+    position: relative
+  }
+  #slide {
+    position: absolute;
+    bottom: 0px;
+    height: 10%;
+    background: linear-gradient( rgba(0, 0, 0, 0.25) 100%, #436f7c 100%),
+  url('/static/bg.jpg') no-repeat center center fixed;
+    z-index: 4;
   }
   #homunculus {
-    height: 90%;
-    vertical-align: "absolute";
-    z-index: -1;
+    width: 100%;
+    position: relative;
   }
   #stats {
-    position: "relative";
-    bottom: 0;
-    left: 0;
+    z-index: 3;
+    position: absolute
   }
 </style>

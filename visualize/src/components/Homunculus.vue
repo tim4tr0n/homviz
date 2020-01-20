@@ -2,13 +2,11 @@
   <div class="homunculus">
     <div>
       <Scene @complete="complete" @before-render$="beforeRender" @after-render$="++frames">
-        <Camera type="arcRotate" :target="[0,1,0]" :radius="5" :alpha="Math.PI/4"></Camera>
+        <Camera type="arcRotate" :target="[0,1,0]" :beta="2.1" :radius="2" :alpha="Math.PI/2"></Camera>
         <HemisphericLight></HemisphericLight>
         <Asset src="https://srv-file4.gofile.io/download/Tryf1D/dummy3.babylon"></Asset>
         <Cylinder :rotation="[Math.PI/2,0,0]" :position="position.twoinpp" :scaling="scale.twoinpp" v-model="twoinpp"></Cylinder>
-
       </Scene>
-      <div v-text="`Frames: ${frames}`" style="position: absolute; color: white; bottom: 0; padding: 15px"></div>
     </div>
   </div>
 </template>

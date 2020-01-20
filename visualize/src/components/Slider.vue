@@ -60,38 +60,14 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  #slider {
+    bottom: -10px;
+    width: 90%;
+    left: 5%;
+  }
   .slidecontainer {
     width: 100%;
+    /* boxShadow: '0 2pt 8pt rgba(0, 0, 0, 0.5)'' */
   }
 
-  .slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 25px;
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-  }
-
-  .slider:hover {
-    opacity: 1;
-  }
-
-  .slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 25px;
-    height: 25px;
-    background: #9400D3;
-    cursor: pointer;
-  }
-
-  .slider::-moz-range-thumb {
-    width: 25px;
-    height: 25px;
-    background: #9400D3;
-    cursor: pointer;
-  }
 </style>
