@@ -2,7 +2,11 @@
   <div class="homunculus">
     <div>
       <Scene @complete="complete" @before-render$="beforeRender" @after-render$="++frames">
-        <Box :position="[-2, 0, 5]" :rotation="rotate.box" :scaling="scale.box" v-model="box"></Box>
+        <Camera type="arcRotate" :target="[0,1,0]" :radius="5" :alpha="Math.PI/4"></Camera>
+        <HemisphericLight></HemisphericLight>
+        <Asset src="https://srv-file4.gofile.io/download/Tryf1D/dummy3.babylon"></Asset>
+        <Cylinder :rotation="[Math.PI/2,0,0]" :position="position.twoinpp" :scaling="scale.twoinpp" v-model="twoinpp"></Cylinder>
+
       </Scene>
       <div v-text="`Frames: ${frames}`" style="position: absolute; color: white; bottom: 0; padding: 15px"></div>
     </div>
@@ -14,8 +18,7 @@ export default {
   name: 'Homunculus',
   data() {
     return {
-      box: null,
-      sphere: null,
+      twoinpp: null,
       time: performance.now(),
       frames: 0,
     };
@@ -27,19 +30,28 @@ export default {
   },
   computed: {
     scale() {
-      let a = 2 + Math.cos(this.time * 0.001);
-      let b = 2 + Math.sin(this.time * 0.001);
+      let a = this.$store.getters.sliderPosition * 0.005;
+
       return {
-        box: [a, b, 1],
-        sphere: [b, a, 1],
+        twoinpp: [0.05, a, 0.05]
       };
     },
-    rotate() {
-      let y = parseFloat(this.$store.getters.sliderPosition);
+
+    position() {
+      let b = (this.$store.getters.sliderPosition * 0.005);
+
       return {
-        box: [0, y, 1]
+        twoinpp: [0,0.9,b]
       }
     }
+
+    // rotate() {
+    //   let y = this.$store.getters.sliderPosition;
+
+    //   return {
+    //     dummy: [0, y, 0]
+    //   }
+    // }
   },
 
   methods: {
@@ -47,10 +59,15 @@ export default {
       this.time = performance.now();
     },
 
-    complete(event) {
-      console.log('complete', event);
-      console.log('box', this.box);
-      console.log('sphere', this.sphere);
+    onDummy(event) {
+      console.log('onDummy', event);
+      // the entity event includes entity reference
+      this.dummy = event.entity;
+    },
+
+    complete() {
+      console.log('dummy', this.dummy);
+      console.log('twoinpp', this.twoinpp);
     },
   },
 };

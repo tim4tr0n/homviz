@@ -1,12 +1,13 @@
 <template>
   <div class="slidecontainer">
     <h1>Homunculus Info</h1>
-    <p> <strong> spinny spinny: </strong> {{ slider.sliderPosition }} </p>
-    <!-- <ul>
-        <li v-for="book in books.slice(0,2)" v-bind:key="book.idx">
+    <p> <strong> pointy pointy: </strong> {{ slider.sliderPosition }} </p>
+    <ul>
+        <!-- <li v-for="book in books.slice(0,2)" v-bind:key="book.idx">
         {{ book.title }} 
-        </li>
-    </ul> -->
+        </li> -->
+    </ul>
+
   </div>
 </template>
 
@@ -26,6 +27,7 @@
     //         books: db.collection('books'),
     //     }
     // },
+
     computed: {
       // TODO : fix these awful naming conventions. will inevitably come when sliderPosition is mapped to homunculus body parts
       slider() {
