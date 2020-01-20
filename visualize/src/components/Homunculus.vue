@@ -1,13 +1,8 @@
 <template>
   <div class="homunculus">
     <div>
-      <!-- events take either a method name or logic content-->
-      <!-- the complete event happens after all children have been initialized and bound-->
       <Scene @complete="complete" @before-render$="beforeRender" @after-render$="++frames">
-        <Asset src="../assets/dummy3.babylon" :scaling="[0.02, 0.02, 0.02]" :position="[4, 0.5, 0]"></Asset>
-        <!-- you can use v-model bindings instead of event entity reference-->
         <Box :position="[-2, 0, 5]" :rotation="rotate.box" :scaling="scale.box" v-model="box"></Box>
-        <Sphere :position="[2, 0, 5]" :scaling="scale.sphere" @entity="onSphere"></Sphere>
       </Scene>
       <div v-text="`Frames: ${frames}`" style="position: absolute; color: white; bottom: 0; padding: 15px"></div>
     </div>
@@ -15,7 +10,6 @@
 </template>
 
 <script>
-
 export default {
   name: 'Homunculus',
   data() {
@@ -26,15 +20,11 @@ export default {
       frames: 0,
     };
   },
-
-  // TODO : fix props validation error in console god dammit
-
   props: {
     rotation: {
         type: Array
     },
   },
-
   computed: {
     scale() {
       let a = 2 + Math.cos(this.time * 0.001);
@@ -45,8 +35,7 @@ export default {
       };
     },
     rotate() {
-      let y = this.$store.getters.sliderPosition;
-
+      let y = parseFloat(this.$store.getters.sliderPosition);
       return {
         box: [0, y, 1]
       }
@@ -56,12 +45,6 @@ export default {
   methods: {
     beforeRender() {
       this.time = performance.now();
-    },
-
-    onSphere(event) {
-      console.log('onSphere', event);
-      // the entity event includes entity reference
-      this.sphere = event.entity;
     },
 
     complete(event) {

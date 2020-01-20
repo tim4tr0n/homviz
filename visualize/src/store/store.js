@@ -10,8 +10,6 @@ export const store = new Vuex.Store({
     },
     mutations: {
       changeSlider(state, value) {
-        console.log("global slider state changed");
-        console.log(value)
         state.sliderPosition = value
       },
       changeBodyState(state, value) {
