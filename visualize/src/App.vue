@@ -2,6 +2,7 @@
   <div id="app">
     
     <Slide id="slide"/>
+    <Selectors id="selectors"/>
     <Stats id="stats"/>
     <Homunculus id="homunculus"/>
   </div>
@@ -11,13 +12,15 @@
   import Homunculus from './components/Homunculus.vue';
   import Slide from './components/Slider.vue';
   import Stats from './components/Stats.vue';
+  import Selectors from './components/Selectors.vue';
 
   export default {
     name: 'app',
     components: {
       Homunculus,
       Slide,
-      Stats
+      Stats,
+      Selectors
     }
   }
 </script>
@@ -44,8 +47,13 @@
     width: 100%;
     position: relative;
   }
+  #selectors {
+    z-index: 4;
+    position: absolute
+  }
   #stats {
     z-index: 3;
+    right: 0%;
     position: absolute
   }
 </style>

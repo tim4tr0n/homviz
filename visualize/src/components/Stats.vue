@@ -1,41 +1,26 @@
 <template>
   <div class="slidecontainer">
-    <hsc-window-style-metal>
-        <hsc-window title="hom info" >
-            <fieldset>
-                <legend>point pointy</legend>
-                {{ slider.sliderPosition }}
-            </fieldset>
-            <fieldset>
-                <legend>elasticity</legend>
-                <input type="range" />
-            </fieldset>
-            <fieldset>
-                <legend>penile gratuity</legend>
-                <input type="radio" name="gender" value="male">fuck yea
-                <br>
-                <input type="radio" name="gender" value="female">hell no
-            </fieldset>
-            <fieldset>
-                <legend>&beta;</legend>
-                <input type="range" />
-            </fieldset>
-            <fieldset>
-                <legend>&gamma;</legend>
-                <input type="range" />
-            </fieldset>
-            <fieldset>
-                <legend>search</legend>
-                <input type="search" />
-            </fieldset>
-        </hsc-window>
-    </hsc-window-style-metal>
-    <!-- <ul>
+    <h3>Homunculus Stats</h3>
+    <hr>
+    <p><u>sampled works</u></p>
+    <ul>
+        <!-- <li>Crime and Punishment</li>
+        <li>The Lady with the Dog</li>
+        <li>War and Peace</li> -->
         <li v-for="book in books.slice(0,2)" v-bind:key="book.idx">
         {{ book.title }} 
-        </li> -->
-    <!-- </ul> -->
-
+        </li>
+    </ul>
+    <hr class="sub-breaker">
+    <p><u>year range</u></p>
+    <h4><b>1840</b> - <b>1920</b></h4>
+    <hr class="sub-breaker">
+    <p><u>body_state</u></p>
+    <h4><b>head</b> <i>0</i></h4>
+    <h4><b>hand</b> <i>0</i></h4>
+    <h4><b>chest</b> <i>0</i></h4>
+    <h4><b>arm</b> <i>0</i></h4>
+    <h4><b>foot</b> <i>0</i></h4>
   </div>
 </template>
 
@@ -44,7 +29,8 @@ import Vue from 'vue'
 import * as VueWindow from '@hscmap/vue-window'
 
 Vue.use(VueWindow)
-// import { db } from '../firebaseConfig';
+import { firebase } from '../firebaseConfig';
+
 export default {
     name: 'Stats',
     data() {
@@ -54,12 +40,12 @@ export default {
             sliderPosition: this.$store.getters.sliderPosition
         }
     },
-    // firestore() {
-    //     return {
-    //         books: db.collection('books'),
-    //     }
-    // },
-
+    firestore() {
+        return {
+            // books: db.collection('books').where("mouth", ">", 2).orderBy("mouth").limit(5),
+            books: firebase.firestore().collection('books').limit(5),
+        }
+    },
     computed: {
         // TODO : fix these awful naming conventions. will inevitably come when sliderPosition is mapped to homunculus body parts
         slider() {
@@ -73,9 +59,32 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-    /* .slidecontainer {
+    .sub-breaker {
+        opacity: 0.1
+    }
+    li {
+        color: white
+    }
+    hr {
+        opacity: 0.7
+    }
+    h3 { 
+        color: white
+    }
+    h4 {
+        color: white
+    }
+    p {
+        color: white;
+        text-align: left;
+        margin-left: 10px;
+        
+    }
+    .slidecontainer {
         width: 20vmax;
-        height: 35vmax;
+        /* height: 35vmax; */
         background: #cccccc;
-    } */
+        background: linear-gradient( rgba(0, 0, 0, 0.25) 100%, #436f7c 100%),
+  url('/static/bg.jpg') no-repeat center center fixed;
+    }
 </style>

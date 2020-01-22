@@ -13,15 +13,31 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// firebase.initializeApp(firebaseConfig);
 // TODO figure out how to properly implement analytics
 // firebase.analytics();
 
-const db = firebase.firestore();
+function initFirebase () {
+    firebase.initializeApp(firebaseConfig);
+    return new Promise((resolve, reject) => {
+        firebase.firestore().enablePersistence()
+        .then(resolve)
+        .catch(err => {
+            if (err.code === 'failed-precondition') {
+            reject(err)
+            // Multiple tabs open, persistence can only be
+            // enabled in one tab at a a time.
+            } else if (err.code === 'unimplemented') {
+            reject(err)
+            // The current browser does not support all of
+            // the features required to enable persistence
+            }
+        })
+    })
+}
 
-const booksCollection = db.collection('books');
 
 export {
-    db,
-    booksCollection
+    firebase,
+    initFirebase
 }
