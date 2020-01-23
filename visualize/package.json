@@ -16,7 +16,6 @@
     "axios": "^0.19.1",
     "core-js": "^3.4.4",
     "firebase": "^7.7.0",
-    "nouislider": "^14.1.1",
     "vue": "^2.6.11",
     "vue-babylonjs": "^1.0.0-beta.7",
     "vue-firestore": "^0.3.22",
