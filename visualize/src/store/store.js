@@ -6,16 +6,18 @@ import { initFirebase, firebase } from '../firebaseConfig';
 
 Vue.use(Vuex)
 
-const myModule = {
-  firestorePath: 'myDocs',
+const booksModule = {
+  firestorePath: 'books',
   firestoreRefType: 'collection', // or 'doc'
-  moduleName: 'myModule',
+  moduleName: 'booksModule',
   statePropName: 'data',
   namespaced: true, // automatically added
 
   // this object is your store module (will be added as '/myModule')
   // you can also add state/getters/mutations/actions
-  state: {},
+  state: {
+    topBooks: []
+  },
   getters: {},
   mutations: {},
   actions: {},
@@ -26,7 +28,7 @@ initFirebase()
   .catch( err => console.error(err))
 
 const easyFirestore = VuexEasyFirestore(
-  [myModule],
+  [booksModule],
   {logging: true, FirebaseDependency: firebase}
 )
   
