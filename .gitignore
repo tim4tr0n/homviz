@@ -8,6 +8,7 @@ serviceAccountKeys/
 .DS_Store
 node_modules
 /dist
+/src/credentials.js
 
 # local env files
 .env.local
