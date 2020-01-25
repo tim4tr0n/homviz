@@ -1,9 +1,10 @@
 <template>
   <div id="app">
-    <Homunculus id="homunculus"/>
-    <Stats id="stats"/>
+    
     <Slide id="slide"/>
-
+    <Selectors id="selectors"/>
+    <Stats id="stats"/>
+    <Homunculus id="homunculus"/>
   </div>
 </template>
 
@@ -11,13 +12,15 @@
   import Homunculus from './components/Homunculus.vue';
   import Slide from './components/Slider.vue';
   import Stats from './components/Stats.vue';
+  import Selectors from './components/Selectors.vue';
 
   export default {
     name: 'app',
     components: {
       Homunculus,
       Slide,
-      Stats
+      Stats,
+      Selectors
     }
   }
 </script>
@@ -29,16 +32,28 @@
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-    margin-top: 2px;
+    margin-top: -8px;
+    position: relative
+  }
+  #slide {
+    position: absolute;
+    bottom: 0px;
+    height: 10%;
+    background: linear-gradient( rgba(0, 0, 0, 0.25) 100%, #436f7c 100%),
+  url('/static/bg.jpg') no-repeat center center fixed;
+    z-index: 4;
   }
   #homunculus {
-    height: 90%;
-    vertical-align: "absolute";
-    z-index: -1;
+    width: 100%;
+    position: relative;
+  }
+  #selectors {
+    z-index: 4;
+    position: absolute
   }
   #stats {
-    position: "relative";
-    bottom: 0;
-    left: 0;
+    z-index: 3;
+    right: 0%;
+    position: absolute
   }
 </style>

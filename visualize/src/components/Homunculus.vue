@@ -1,56 +1,55 @@
 <template>
   <div class="homunculus">
     <div>
-      <!-- events take either a method name or logic content-->
-      <!-- the complete event happens after all children have been initialized and bound-->
       <Scene @complete="complete" @before-render$="beforeRender" @after-render$="++frames">
-        <!-- you can use v-model bindings instead of event entity reference-->
-        <!-- <Asset src="../assets/dummy3.babylon" :scaling="[0.02, 0.02, 0.02]" :position="[4, 0.5, 0]"></Asset>
-        <Sphere :position="[2, 0, 5]" :scaling="scale.sphere" @entity="onSphere"></Sphere> -->
-        <Asset src="https://srv-file4.gofile.io/download/Tryf1D/dummy3.babylon" v-model="dummy" :position="[4, 0.5, 0]"></Asset>
-        <Box :position="[-2, 0, 5]" :rotation="rotate.box" :scaling="scale.box" v-model="box"></Box>
+        <Camera type="arcRotate" :target="[0,1,0]" :beta="2.1" :radius="2" :alpha="Math.PI/2"></Camera>
+        <HemisphericLight></HemisphericLight>
+        <Asset src="https://srv-file4.gofile.io/download/Tryf1D/dummy3.babylon"></Asset>
+        <Cylinder :rotation="[Math.PI/2,0,0]" :position="position.twoinpp" :scaling="scale.twoinpp" v-model="twoinpp"></Cylinder>
       </Scene>
-      <div v-text="`Frames: ${frames}`" style="position: absolute; color: white; bottom: 0; padding: 15px"></div>
     </div>
   </div>
 </template>
 
 <script>
-
 export default {
   name: 'Homunculus',
   data() {
     return {
-      box: null,
-      dummy: null,
+      twoinpp: null,
       time: performance.now(),
       frames: 0,
     };
   },
-
-  // TODO : fix props validation error in console god dammit
-
   props: {
     rotation: {
         type: Array
     },
   },
-
   computed: {
     scale() {
-      let a = 2 + Math.cos(this.time * 0.001);
-      let b = 2 + Math.sin(this.time * 0.001);
-      return {
-        box: [a, b, 1],
-      };
-    },
-    rotate() {
-      let y = this.$store.getters.sliderPosition;
+      let a = this.$store.getters.sliderPosition * 0.005;
 
       return {
-        box: [0, y, 1]
+        twoinpp: [0.05, a, 0.05]
+      };
+    },
+
+    position() {
+      let b = (this.$store.getters.sliderPosition * 0.005);
+
+      return {
+        twoinpp: [0,0.9,b]
       }
     }
+
+    // rotate() {
+    //   let y = this.$store.getters.sliderPosition;
+
+    //   return {
+    //     dummy: [0, y, 0]
+    //   }
+    // }
   },
 
   methods: {
@@ -64,10 +63,9 @@ export default {
       this.dummy = event.entity;
     },
 
-    complete(event) {
-      console.log('complete', event);
-      console.log('box', this.box);
+    complete() {
       console.log('dummy', this.dummy);
+      console.log('twoinpp', this.twoinpp);
     },
   },
 };
