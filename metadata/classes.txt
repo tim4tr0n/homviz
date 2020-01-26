@@ -1,0 +1,21 @@
+A General Works
+B Philosophy. Psychology. Religion
+C Auxillary Sciences of History
+D World History and History of Europe, Asia, Africa, Australia, New Zealand, etc.
+E History of the Americas
+F History of the Americas
+G Geography. Anthropology. Recreation.
+H Social Sciences
+J Political Science
+K Law
+L Education
+M Music
+N Fine Arts
+P Language and Literature
+Q Science
+R Medicene
+S Agrigulture
+T Technology
+U Military Science
+V Naval Science
+Z Bibliography. Library Science.

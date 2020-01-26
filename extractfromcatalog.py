@@ -1,4 +1,4 @@
-import rdflib, wget, re, os, firebase_admin, json
+import rdflib, wget, re, os, firebase_admin, json, requests
 from firebase_admin import credentials
 from firebase_admin import firestore
 
@@ -12,7 +12,28 @@ def findID(path):
     """Returns the ID of the book with given path."""
     extensionless = path.split(".rdf")[0]
     return extensionless.split("catalog/pg")[1]
-    
+
+def downloadBook(path):
+    """Downloads the book given by the catalog file."""
+    bookID = findID(path)
+    source = findSource(path)
+
+    if source:
+        try:
+            wget.download(source, str(bookID) + '.txt', bar=None)
+        
+        except KeyboardInterrupt:
+            exit()
+
+        except:
+            print("Error in HTTP get for external resource defined by catalog file", path)
+            return None
+
+        else:
+            return (str(bookID) + '.txt')
+    else:
+        return None
+
 def findTitle(path):
     bookID = findID(path)
     graph = loadRDF(path)
@@ -121,27 +142,27 @@ def findSubjectCode(path):
 
     return None
 
-def downloadBook(path):
-    """Downloads the book given by the catalog file."""
-    bookID = findID(path)
+def findPublicationDate(path):
+    # query Google books for the author and 
+    payload = {'q':findTitle(path), 'inAuthor':findAuthor(path)}
 
-    source = findSource(path)
+    r = requests.get('https://www.googleapis.com/books/v1/volumes?', params = payload)
 
-    if source:
-        try:
-            wget.download(source, str(bookID) + '.txt', bar=None)
-        
-        except KeyboardInterrupt:
-            exit()
+    # make sure that the query didn't fail
+    if r.status_code != 200:
+        raise RuntimeError('Unable to find Google Books Data, got HTTP status ' + str(r.status_code))
 
-        except:
-            print("Error in HTTP get for external resource defined by catalog file", path)
-            return None
+    # we want to find the earliest entry in the list
+    # we do this by making a dictionary of every entry that Google returned, and finding the entry with the earliest date
+    raw = r.json()
+    date_dict = {}
+    for index in range(len(raw['items'])):
+        date_dict[index] = raw['items'][index]['volumeInfo']['publishedDate'][:4]
+    
+    min_index = min(date_dict, key=date_dict.get)
 
-        else:
-            return (str(bookID) + '.txt')
-    else:
-        return None
+    return raw['items'][min_index]['volumeInfo']['publishedDate']
+
 
 def getWordDict(path):
     """Takes in a path to a .json file containing all the words
@@ -216,6 +237,7 @@ def createBookDict(rdf_path, wordlist_dict):
             'language' : findLanguage(rdf_path),
             'subject' : findSubjectCode(rdf_path),
             'id' : findID(rdf_path)
+            #'publishedDate' : findPublicationDate(rdf_path)
         }
 
         countWords(book_path, book_dict, wordlist_dict)
@@ -223,7 +245,7 @@ def createBookDict(rdf_path, wordlist_dict):
         return book_dict
 
 # load file
-wordlist_path = "wordlist.json"
+wordlist_path = "metadata/wordlist.json"
 wordlist_dict = getWordDict(wordlist_path)
 
 # get list of all files in directory
