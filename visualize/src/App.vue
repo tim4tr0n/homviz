@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    
     <Slide id="slide"/>
     <Selectors id="selectors"/>
     <Stats id="stats"/>
@@ -13,7 +12,7 @@
   import Slide from './components/Slider.vue';
   import Stats from './components/Stats.vue';
   import Selectors from './components/Selectors.vue';
-
+  import { firebase } from './firebaseConfig';
   export default {
     name: 'app',
     components: {
@@ -21,7 +20,40 @@
       Slide,
       Stats,
       Selectors
-    }
+    },
+    mounted() {
+        const db = firebase.firestore();
+        const getDatabaseInfo = async () => {
+            try {
+                const databaseInfoSnapshot = await db.collection('databaseInfo').limit(5).get()
+                console.log("getDatabaseInfo")
+                databaseInfoSnapshot.forEach(doc => {
+                    // doc.data() is never undefined for query doc snapshots
+                    const data = doc.data();
+                    console.log(doc.id, " => ", data);
+                    if(doc.id == "classes"){
+                        this.$store.commit('loadGenres', data);
+                    }
+                    if(doc.id == "subclasses"){
+                        this.$store.commit('loadSubgenres', data);
+                    }
+                    if(doc.id == "languages"){
+                        this.$store.commit('loadLanguages', data);
+                    }
+                });
+            } catch (err) {
+                console.error(err)
+            }
+          
+        }
+        getDatabaseInfo()
+
+        this.$store.subscribe((mutation) => {
+          if( mutation.type == "changeSelectedSubgenre" || (mutation.type == "changeSelectedLanguage")){
+            this.$store.dispatch('queryBooks')
+          }
+        })    
+    },
   }
 </script>
 

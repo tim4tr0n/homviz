@@ -13,5 +13,8 @@ new Vue({
   components: { App },
   store,
   template: "<App/>",
+  created: function () {
+    console.log("VUE HAS BEEN CREATED!")
+  },
   render: h => h(App),
 }).$mount('#app')

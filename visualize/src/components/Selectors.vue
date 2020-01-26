@@ -4,15 +4,27 @@
         <hsc-window title="hom info" >
             <fieldset>
                 <legend>pointy pointy</legend>
-                {{ slider.sliderPosition }}
+                {{ selectorData.sliderPosition }}
             </fieldset>
             <fieldset>
                 <legend>Genre</legend>
-                <select>
-                    <option value="Russian shit">Russian shit</option>
-                    <option value="saab">Saab</option>
-                    <option value="opel">Opel</option>
-                    <option value="audi">Audi</option>
+                <select @input="updateGenre">
+                    <option value="none" selected>Choose a genre</Option>
+                    <option v-for="(value, key) in selectorData.genres"  v-bind:key="key" v-bind:value="key">{{value}}</option>
+                </select>
+            </fieldset>
+            <fieldset>
+                <legend>Subgenre</legend>
+                <select @input="updateSubgenre">
+                    <option value="none" selected>All</Option>
+                    <option v-for="(value, key) in selectorData.subgenres"  v-bind:key="key" v-bind:value="key">{{value}}</option>
+                </select>
+            </fieldset>
+            <fieldset>
+                <legend>Language</legend>
+                <select @input="updateLanguage">
+                    <option value="none" selected>Choose a language</Option>
+                    <option v-for="(value, key) in selectorData.languages"  v-bind:key="key" v-bind:value="key">{{value}}</option>
                 </select>
             </fieldset>
             <fieldset>
@@ -26,10 +38,6 @@
                 <input type="radio" name="gender" value="female">hell no
             </fieldset>
             <fieldset>
-                <legend>&beta;</legend>
-                <input type="range" />
-            </fieldset>
-            <fieldset>
                 <legend>search</legend>
                 <input type="search" />
             </fieldset>
@@ -41,7 +49,9 @@
 <script>
 import Vue from 'vue'
 import * as VueWindow from '@hscmap/vue-window'
+// import vSelect from 'vue-select'
 
+// Vue.component('v-select', vSelect)
 Vue.use(VueWindow)
 
 export default {
@@ -50,17 +60,38 @@ export default {
         return {
             sliderValue: null,
             books: [],
-            sliderPosition: this.$store.getters.sliderPosition
+            sliderPosition: this.$store.getters.sliderPosition,
+            genres: this.$store.getters.genres,
+            subgenres: this.$store.getters.subgenres,
+            languages: this.$store.getters.languages,
+            selectedGenre: this.$store.getters.selectedGenre,
+            selectedSubgenre: this.$store.getters.selectedSubgenre,
+            selectedLanguage: this.$store.getters.selectedLanguage
         }
     },
-
+    methods: {
+        updateGenre(e) {
+            this.$store.commit("changeSelectedGenre", e.srcElement.value)
+        },
+        updateSubgenre(e) {
+            this.$store.commit("changeSelectedSubgenre", e.srcElement.value)
+        },
+        updateLanguage(e) {
+            this.$store.commit("changeSelectedLanguage", e.srcElement.value)
+        }
+    },
     computed: {
         // TODO : fix these awful naming conventions. will inevitably come when sliderPosition is mapped to homunculus body parts
-        slider() {
+        selectorData() {
             return {
-                sliderPosition: this.$store.getters.sliderPosition
+                sliderPosition: this.$store.getters.sliderPosition,
+                genres: this.$store.getters.genres,
+                subgenres: this.$store.getters.subgenres,
+                languages: this.$store.getters.languages,
+                selectedLanguage: this.$store.getters.selectedLanguage
             }
-        }
+        },
+   
     }
 }
 </script>
