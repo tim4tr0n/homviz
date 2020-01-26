@@ -29,9 +29,8 @@ async function getBooksBySubject({limit=20,subject="PQ",language="en"}) {
       console.log("query result size:", databaseInfoSnapshot.size)
       const books = []
       await databaseInfoSnapshot.forEach(doc => {
-          // doc.data() is never undefined for query doc snapshots
-          // console.log(doc.id, " => ", doc.data());
-          books.push(doc.data())
+          const book = {...doc.data(), selected: false}
+          books.push(book)
       });
       return books
 
@@ -43,11 +42,12 @@ async function getBooksBySubject({limit=20,subject="PQ",language="en"}) {
 
 const storeData = {
   state: {
-    bodyState: 3,
+    bodyState: {},
     sliderPosition: 0,
     genres: {},
     subgenres: {},
     languages: {},
+    bodyParts: [],
     selectedGenre: 'P',
     selectedSubgenre: null,
     selectedLanguage: 'en',
@@ -61,6 +61,9 @@ const storeData = {
     },
     changeBodyState(state, value) {
       state.bodyState = value
+    },
+    loadBodyParts(state, value) {
+      state.bodyParts = value
     },
     loadGenres(state, value) {
       state.genres = {...state.genres,...value}
@@ -96,6 +99,23 @@ const storeData = {
 
       }
     },
+    changeSelectedBook(state, value){
+      state.selectedBook = value
+    },
+    // changeSelectedBookAndBodyState(state, value){
+      // const selectedBook = value;
+      // const bodyParts  = this.$store.getters.bodyParts;
+      // const bookBodyParts = Object.keys(selectedBook) // this name is not the best. we're getting the keys of the selected book object that are body parts
+      //     .filter(key => key in bodyParts)
+      //     .reduce((obj, key) => {
+      //         return {
+      //             ...obj,
+      //             [key]: selectedBook[key]
+      //         };
+      //     }, {});
+      // return bookBodyParts
+    //   state.selectedBook = value
+    // },
     changeQueriedBooks(state, value) {
       state.queriedBooks = value
     },
@@ -106,6 +126,7 @@ const storeData = {
   getters: {
     booksModule: state => state.booksModule,
     bodyState: state => state.bodyState,
+    bodyParts: state => state.bodyParts,
     sliderPosition: state => state.sliderPosition,
     genres: state => state.genres,
     subgenres: state => {
@@ -120,10 +141,11 @@ const storeData = {
         }, {});
       return filtered
     },
+    languages: state => state.languages,
     selectedGenre: state => state.selectedGenre,
     selectedSubgenre: state => state.selectedSubgenre,
-    languages: state => state.languages,
     selectedLanguage: state => state.selectedLanguage,
+    selectedBook: state => state.selectedBook,
     queriedBooks: state => state.queriedBooks
   },
   actions: {
@@ -134,6 +156,20 @@ const storeData = {
       console.log(books)
       commit('changeQueriedBooks', books)
       commit('changeWitnessedBooks', books)
+    },
+    changeSelectedBookAndBodyState({ commit, getters}, value) {
+      const selectedBook = value;
+      const bodyParts  = getters.bodyParts;
+      const bookBodyParts = Object.keys(selectedBook) // this name is not the best. we're getting the keys of the selected book object that are body parts
+          .filter(key => key in bodyParts)
+          .reduce((obj, key) => {
+              return {
+                  ...obj,
+                  [key]: selectedBook[key]
+              };
+          }, {});
+      commit("changeSelectedBook", selectedBook)
+      commit("changeBodyState", bookBodyParts)
     }
   },
   strict: process.env.NODE_ENV !== 'production'

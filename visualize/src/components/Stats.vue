@@ -4,22 +4,16 @@
     <hr>
     <p><u>sampled works</u>: <i>({{stats.queriedBooks.length}} books queried)</i></p>
     <div class="bookscontainer">
-        <!-- <li>Crime and Punishment</li>
-        <li>The Lady with the Dog</li>
-        <li>War and Peace</li> -->
-        <!-- <virtual-list :size="40" :remain="8">
-            <item v-for="book in stats.queriedBooks" :key="book.idx"/>
-        </virtual-list> -->
         <div v-if="stats.queriedBooks.length == 0" class="defaultstats">
             <br>
             <br>
             <h3><i>Select your book parameters!</i></h3>
         </div>
-        <div v-else class="bookitem" @click="selectBook" v-for="book in stats.queriedBooks" v-bind:key="book.idx">
+        <div v-else v-bind:class="{ selected: book == stats.selectedBook, bookitem: !(book == stats.selectedBook) }" v-for="book in stats.queriedBooks" @click="selectBook(book)" v-bind:key="book.idx">
             <hr class="sub-breaker">
             <b>{{ book.title }}</b>
             <br>
-            <i>{{ book.author }}</i>
+            <i>{{ formatAuthor(book.author) }}</i>
         </div>
     </div>
     <hr class="sub-breaker">
@@ -27,11 +21,25 @@
     <h4><b>1840</b> - <b>1920</b></h4>
     <hr class="sub-breaker">
     <p><u>body_state</u></p>
-    <h4><b>head</b> <i>0</i></h4>
-    <h4><b>hand</b> <i>0</i></h4>
-    <h4><b>chest</b> <i>0</i></h4>
-    <h4><b>arm</b> <i>0</i></h4>
-    <h4><b>foot</b> <i>0</i></h4>
+    <div class="bodypartscontainer">
+        <div v-if="stats.bodyState == null" class="defaultstats">
+           
+            <h3><i>Select a book!</i></h3>
+        </div>
+        <div v-else-if="stats.selectedBook != null && Object.keys(stats.bodyState).length == 0" class="defaultstats">
+            <br>
+            <br>
+            <h3><i>No bodyparts  are mentioned! What a sorry excuse for a book.</i></h3>
+        </div>
+        <div v-else class="bodypartitem" v-for="(value, key) in stats.bodyState" v-bind:key="key">
+            <b>{{key}}</b> : <i>{{value}}</i>
+        </div>
+        <!-- <h4><b>head</b> <i>0</i></h4>
+        <h4><b>hand</b> <i>0</i></h4>
+        <h4><b>chest</b> <i>0</i></h4>
+        <h4><b>arm</b> <i>0</i></h4>
+        <h4><b>foot</b> <i>0</i></h4> -->
+    </div>
   </div>
   
 </template>
@@ -48,6 +56,9 @@ export default {
             sliderValue: null,
             sliderPosition: this.$store.getters.sliderPosition,
             queriedBooks: this.$store.getters.queriedBooks,
+            bodyState: this.$store.getters.bodyState,
+            bodyParts: this.$store.getters.bodyParts,
+            selectedBook: this.$store.getters.selectedBook,
             clicked: false
         }
     },
@@ -56,17 +67,42 @@ export default {
         stats() {
             return {
                 sliderPosition: this.$store.getters.sliderPosition,
+                bodyState: this.$store.getters.bodyState,
                 queriedBooks: this.$store.getters.queriedBooks,
+                selectedBook: this.$store.getters.selectedBook,
+                bodyParts: this.$store.getters.bodyParts,
                 clicked: false
             }
         },
+        bookBodyParts() {
+            const selectedBook = this.$store.getters.selectedBook;
+            const bodyParts  = this.$store.getters.bodyParts;
+            const bookBodyParts = Object.keys(selectedBook) // this name is not the best. we're getting the keys of the selected book object that are body parts
+                .filter(key => key in bodyParts)
+                .reduce((obj, key) => {
+                    return {
+                        ...obj,
+                        [key]: selectedBook[key]
+                    };
+                }, {});
+            return bookBodyParts
+            
+        }
     },
     methods: {
-        selectBook: function(event){
+        selectBook: function(book){
             console.log("click!")
-            // stats.clicked = !stats.clicked
-            // console.log(stats.clicked)
-            console.log(event)
+            this.$store.dispatch('changeSelectedBookAndBodyState', book)
+        },
+        formatAuthor(author){
+            if(author == null){
+                return author
+            }
+            if(author.includes(", ")){
+                const split = author.split(", ")
+                return split[1] + " " + split[0]
+            }
+            return author
         }
     }
 }
@@ -75,7 +111,9 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
     .sub-breaker {
-        opacity: 0.1
+        opacity: 0.1;
+        margin-top: 0px;
+        margin-bottom: 15px;
     }
     li {
         color: white
@@ -98,14 +136,31 @@ export default {
         margin-left: 10px;
     }
     .defaultstats{
-        opacity: 0.4    ;
+        opacity: 0.4;
+        text-align: center;
+    }
+    .selected{
+        background: #4f518c;
+        color: white;
+        padding-bottom:10px;
     }
     .bookitem{
-        color: white
+        color: white;
+        padding-bottom:10px;
     }
     .bookscontainer{
         overflow-y: auto;
         height: 15vmax;
+        text-align: center;
+    }
+    .bodypartscontainer{
+        overflow-y: auto;
+        height: 8vmax;
+        margin: 15px;
+    }
+    .bodypartitem{
+        color: white;
+        margins: 15px;
     }
     .slidecontainer {
         width: 20vmax;

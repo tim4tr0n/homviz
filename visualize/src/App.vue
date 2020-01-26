@@ -40,6 +40,12 @@
                     if(doc.id == "languages"){
                         this.$store.commit('loadLanguages', data);
                     }
+                    if(doc.id == "bodyParts"){
+                        // const bodyPartsArray = Object.keys(data).map( key => {
+                        //   return key
+                        // })
+                        this.$store.commit('loadBodyParts', data);
+                    }
                 });
             } catch (err) {
                 console.error(err)
