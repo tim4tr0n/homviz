@@ -1,25 +1,28 @@
 <template>
   <div id="app">
-    <Slide id="slide"/>
+    <NewHomunculus id="homunculus"/>
+    <!-- <Slide id="slide"/>
     <Selectors id="selectors"/>
     <Stats id="stats"/>
-    <Homunculus id="homunculus"/>
+    <Homunculus id="homunculus"/> -->
   </div>
 </template>
 
 <script>
-  import Homunculus from './components/Homunculus.vue';
-  import Slide from './components/Slider.vue';
-  import Stats from './components/Stats.vue';
-  import Selectors from './components/Selectors.vue';
+  // import Homunculus from './components/Homunculus.vue';
+  import NewHomunculus from './components/NewHomunculus.vue';
+  // import Slide from './components/Slider.vue';
+  // import Stats from './components/Stats.vue';
+  // import Selectors from './components/Selectors.vue';
   import { firebase } from './firebaseConfig';
   export default {
     name: 'app',
     components: {
-      Homunculus,
-      Slide,
-      Stats,
-      Selectors
+      NewHomunculus
+      // Homunculus,
+      // Slide,
+      // Stats,
+      // Selectors
     },
     mounted() {
         const db = firebase.firestore();

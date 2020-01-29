@@ -12,6 +12,9 @@ export default {
   data () {
     return {
       sliderValue: null,
+      queriedBooks: this.$store.getters.queriedBooks,
+      selectedBook: this.$store.getters.selectedBook,
+      selectedBookIndex: this.$store.getters.selectedBookIndex,
       slider: {
           startMin: 25,
           startMax: 75,
@@ -23,37 +26,84 @@ export default {
       Slider: document.getElementById('slider'),
     }
   },
-  mounted: function() {
-    this.Slider = document.getElementById('slider')
-    noUiSlider.create(this.Slider, {
-      start: [this.slider.startMin],
-      step: this.slider.step,
-      tooltips: [true],
-      range:{
-        'min': [0],
-        '10%': [10, 10],
-        '50%': [80, 50],
-        '80%': 150,
-        'max': 200
-      },
-      pips: {
-        mode: 'steps',
-        density: 5,
-        filter: function( value ) {return value % 4 ? 2 : 1;},
-        format: {
-          to: function ( value ) {
-            return value + ' ';
-          },
-          from: function ( value ) {
-            return value.replace(' ', '');
-          }
+  computed: {
+    stats() {
+        return {
+          queriedBooks: this.$store.getters.queriedBooks,
+          selectedBook: this.$store.getters.selectedBook,
         }
+    }
+  },
+  methods:{
+    createSlider(){
+        this.Slider = document.getElementById('slider')
+        noUiSlider.create(this.Slider, {
+          start: [this.slider.startMin],
+          step: this.slider.step,
+          tooltips: [true],
+          range:{
+            'min': [0],
+            '10%': [10, 10],
+            '50%': [80, 50],
+            '80%': 150,
+            'max': 200
+          },
+          pips: {
+            mode: 'steps',
+            density: 5,
+            filter: function( value ) {return value % 4 ? 2 : 1;},
+            format: {
+              to: function ( value ) {
+                return value + ' ';
+              },
+              from: function ( value ) {
+                return value.replace(' ', '');
+              }
+            }
+          }
+        });
+
+        this.Slider.noUiSlider.on('update',(values) => {
+          this.$store.commit('changeSlider', values[0])
+        });
+    }
+  },
+  mounted: function() {
+    // this.Slider = document.getElementById('slider')
+    // noUiSlider.create(this.Slider, {
+    //   start: [this.slider.startMin],
+    //   step: this.slider.step,
+    //   tooltips: [true],
+    //   range:{
+    //     'min': [0],
+    //     '10%': [10, 10],
+    //     '50%': [80, 50],
+    //     '80%': 150,
+    //     'max': 200
+    //   },
+    //   pips: {
+    //     mode: 'steps',
+    //     density: 5,
+    //     filter: function( value ) {return value % 4 ? 2 : 1;},
+    //     format: {
+    //       to: function ( value ) {
+    //         return value + ' ';
+    //       },
+    //       from: function ( value ) {
+    //         return value.replace(' ', '');
+    //       }
+    //     }
+    //   }
+    // });
+    
+    this.$store.subscribe((mutation) => {
+      if( mutation.type == "changeSelectedSubgenre" || (mutation.type == "changeSelectedLanguage")){
+        this.createSlider()
       }
-    }); 
-            
-    this.Slider.noUiSlider.on('update',(values) => {
-      this.$store.commit('changeSlider', values[0])
-    }); 
+    })    
+
+  
+    
   }
 }
 </script>

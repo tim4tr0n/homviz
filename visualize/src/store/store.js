@@ -53,7 +53,8 @@ const storeData = {
     selectedLanguage: 'en',
     queriedBooks: [],
     witnessedBooks: [],
-    selectedBook: null
+    selectedBook: null,
+    selectedBookIndex: 0, // this is tricky. we should probably reset the selected book every time a new query happens in order to avoid issues with this
   },
   mutations: {
     changeSlider(state, value) {
@@ -86,9 +87,6 @@ const storeData = {
         state.selectedSubgenre = null
       } else {
         state.selectedSubgenre = value
-        // console.log("getting fucking books")
-        // state.queriedBooks = getBooksBySubject({subject: value})
-        // state.witnessedBooks = Array.prototype.push.apply(state.queriedBooks,state.witnessedBooks)
       }
     },
     changeSelectedLanguage(state, value) {
@@ -102,20 +100,9 @@ const storeData = {
     changeSelectedBook(state, value){
       state.selectedBook = value
     },
-    // changeSelectedBookAndBodyState(state, value){
-      // const selectedBook = value;
-      // const bodyParts  = this.$store.getters.bodyParts;
-      // const bookBodyParts = Object.keys(selectedBook) // this name is not the best. we're getting the keys of the selected book object that are body parts
-      //     .filter(key => key in bodyParts)
-      //     .reduce((obj, key) => {
-      //         return {
-      //             ...obj,
-      //             [key]: selectedBook[key]
-      //         };
-      //     }, {});
-      // return bookBodyParts
-    //   state.selectedBook = value
-    // },
+    changeSelectedBookIndex(state, value){
+      state.selectedBookIndex = value
+    },
     changeQueriedBooks(state, value) {
       state.queriedBooks = value
     },
@@ -146,6 +133,7 @@ const storeData = {
     selectedSubgenre: state => state.selectedSubgenre,
     selectedLanguage: state => state.selectedLanguage,
     selectedBook: state => state.selectedBook,
+    selectedBookIndex: state => state.selectedBookIndex,
     queriedBooks: state => state.queriedBooks
   },
   actions: {
@@ -153,12 +141,12 @@ const storeData = {
       const subject = getters.selectedSubgenre
       const language = getters.selectedLanguage.toLowerCase()
       const books = await getBooksBySubject({limit:50, subject, language})
-      console.log(books)
       commit('changeQueriedBooks', books)
       commit('changeWitnessedBooks', books)
     },
     changeSelectedBookAndBodyState({ commit, getters}, value) {
-      const selectedBook = value;
+      const selectedBook = value.book;
+      const index = value.index;
       const bodyParts  = getters.bodyParts;
       const bookBodyParts = Object.keys(selectedBook) // this name is not the best. we're getting the keys of the selected book object that are body parts
           .filter(key => key in bodyParts)
@@ -169,6 +157,7 @@ const storeData = {
               };
           }, {});
       commit("changeSelectedBook", selectedBook)
+      commit("changeSelectedBookIndex", index)
       commit("changeBodyState", bookBodyParts)
     }
   },

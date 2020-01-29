@@ -49,9 +49,7 @@
 <script>
 import Vue from 'vue'
 import * as VueWindow from '@hscmap/vue-window'
-// import vSelect from 'vue-select'
 
-// Vue.component('v-select', vSelect)
 Vue.use(VueWindow)
 
 export default {
@@ -101,9 +99,4 @@ export default {
     select {
         width: 100%
     }
-    /* .slidecontainer {
-        width: 20vmax;
-        height: 35vmax;
-        bac kground: #cccccc;
-    } */
 </style>

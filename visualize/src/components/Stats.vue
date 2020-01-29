@@ -9,7 +9,7 @@
             <br>
             <h3><i>Select your book parameters!</i></h3>
         </div>
-        <div v-else v-bind:class="{ selected: book == stats.selectedBook, bookitem: !(book == stats.selectedBook) }" v-for="book in stats.queriedBooks" @click="selectBook(book)" v-bind:key="book.idx">
+        <div v-else v-bind:class="{ selected: book == stats.selectedBook, bookitem: !(book == stats.selectedBook) }" v-for="(book, index) in stats.queriedBooks" @click="selectBook(book, index)" v-bind:key="book.idx">
             <hr class="sub-breaker">
             <b>{{ book.title }}</b>
             <br>
@@ -34,11 +34,6 @@
         <div v-else class="bodypartitem" v-for="(value, key) in stats.bodyState" v-bind:key="key">
             <b>{{key}}</b> : <i>{{value}}</i>
         </div>
-        <!-- <h4><b>head</b> <i>0</i></h4>
-        <h4><b>hand</b> <i>0</i></h4>
-        <h4><b>chest</b> <i>0</i></h4>
-        <h4><b>arm</b> <i>0</i></h4>
-        <h4><b>foot</b> <i>0</i></h4> -->
     </div>
   </div>
   
@@ -58,8 +53,7 @@ export default {
             queriedBooks: this.$store.getters.queriedBooks,
             bodyState: this.$store.getters.bodyState,
             bodyParts: this.$store.getters.bodyParts,
-            selectedBook: this.$store.getters.selectedBook,
-            clicked: false
+            selectedBook: this.$store.getters.selectedBook
         }
     },
     computed: {
@@ -70,8 +64,7 @@ export default {
                 bodyState: this.$store.getters.bodyState,
                 queriedBooks: this.$store.getters.queriedBooks,
                 selectedBook: this.$store.getters.selectedBook,
-                bodyParts: this.$store.getters.bodyParts,
-                clicked: false
+                bodyParts: this.$store.getters.bodyParts
             }
         },
         bookBodyParts() {
@@ -90,9 +83,9 @@ export default {
         }
     },
     methods: {
-        selectBook: function(book){
-            console.log("click!")
-            this.$store.dispatch('changeSelectedBookAndBodyState', book)
+        selectBook: function(book, index){
+            console.log(book, index)
+            this.$store.dispatch('changeSelectedBookAndBodyState', { book, index } )
         },
         formatAuthor(author){
             if(author == null){
