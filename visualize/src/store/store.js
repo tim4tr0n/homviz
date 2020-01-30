@@ -44,7 +44,19 @@ const storeData = {
   state: {
     bodyState: {},
     homunculusState: {
+      "nail": 0,
+      "finger": 0,
+      "hand": 0,
+      "arm": 0,
+      "shoulders": 0,
+      "chest": 0,
+      "abdomen": 0,
+      "back": 0,
+      "ass": 0,
       "thigh": 0,
+      "knees": 0,
+      "calf": 0,
+      "foot": 0,
       "neck": 0
     },
     sliderPosition: 0,
@@ -66,6 +78,9 @@ const storeData = {
     },
     changeBodyState(state, value) {
       state.bodyState = value
+    },
+    changeHomunculusState(state, value){
+      state.homunculusState = value
     },
     changeHomunculusPartState(state, value){
       const part = value.part
@@ -158,6 +173,7 @@ const storeData = {
       const selectedBook = value.book;
       const index = value.index;
       const bodyParts  = getters.bodyParts;
+      const homunculusState = getters.homunculusState; // fishy way to get our desired list of body parts. consider more deeply
       const bookBodyParts = Object.keys(selectedBook) // this name is not the best. we're getting the keys of the selected book object that are body parts
           .filter(key => key in bodyParts)
           .reduce((obj, key) => {
@@ -166,6 +182,19 @@ const storeData = {
                   [key]: selectedBook[key]
               };
           }, {});
+      
+      const changedHomunculusState = Object.keys(bookBodyParts)
+          .filter(key => key in homunculusState) // figure out how to deal with plurals / synonyms here
+          .reduce((obj, key) => {
+              return {
+                  ...obj,
+                  [key]: bookBodyParts[key]
+              };
+          }, {});
+      
+      console.log("CHANGED HOMUNCULUS OBJECT", changedHomunculusState)
+      const mergedHomunculusState = {...homunculusState, ...changedHomunculusState} // this is shitty because it accumulates over time. need to reset each time god dammit
+      commit("changeHomunculusState", mergedHomunculusState)
       commit("changeSelectedBook", selectedBook)
       commit("changeSelectedBookIndex", index)
       commit("changeBodyState", bookBodyParts)
