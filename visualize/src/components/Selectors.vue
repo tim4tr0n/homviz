@@ -28,8 +28,12 @@
                 </select>
             </fieldset>
             <fieldset>
-                <legend>elasticity</legend>
-                <input type="range" />
+                <legend>thigh</legend>
+                <input @input="($event) => { updateHomunculusPart( $event, 'thigh' ) }" type="range" />
+            </fieldset>
+            <fieldset>
+                <legend>neck</legend>
+                <input @input="($event) => { updateHomunculusPart( $event, 'neck' ) }" type="range" />
             </fieldset>
             <fieldset>
                 <legend>penile gratuity</legend>
@@ -76,6 +80,9 @@ export default {
         },
         updateLanguage(e) {
             this.$store.commit("changeSelectedLanguage", e.srcElement.value)
+        },
+        updateHomunculusPart(e, part) {
+            this.$store.commit("changeHomunculusPartState", { sliderValue: e.srcElement.valueAsNumber, part } )
         }
     },
     computed: {
@@ -86,7 +93,8 @@ export default {
                 genres: this.$store.getters.genres,
                 subgenres: this.$store.getters.subgenres,
                 languages: this.$store.getters.languages,
-                selectedLanguage: this.$store.getters.selectedLanguage
+                selectedLanguage: this.$store.getters.selectedLanguage,
+                homunculusState: this.$store.getters.homunculusState
             }
         },
    

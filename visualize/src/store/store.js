@@ -43,6 +43,10 @@ async function getBooksBySubject({limit=20,subject="PQ",language="en"}) {
 const storeData = {
   state: {
     bodyState: {},
+    homunculusState: {
+      "thigh": 0,
+      "neck": 0
+    },
     sliderPosition: 0,
     genres: {},
     subgenres: {},
@@ -62,6 +66,11 @@ const storeData = {
     },
     changeBodyState(state, value) {
       state.bodyState = value
+    },
+    changeHomunculusPartState(state, value){
+      const part = value.part
+      const sliderValue = value.sliderValue/100
+      state.homunculusState[part] = sliderValue
     },
     loadBodyParts(state, value) {
       state.bodyParts = value
@@ -112,6 +121,7 @@ const storeData = {
   },
   getters: {
     booksModule: state => state.booksModule,
+    homunculusState: state => state.homunculusState,
     bodyState: state => state.bodyState,
     bodyParts: state => state.bodyParts,
     sliderPosition: state => state.sliderPosition,
