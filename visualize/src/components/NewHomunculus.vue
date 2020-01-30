@@ -20,7 +20,32 @@ export default {
     }
   },
   methods: {
-    init: function() {
+    init() {
+
+        this.state = {
+            // environment: options.preset === Preset.ASSET_GENERATOR
+            //     ? environments.find((e) => e.id === 'footprint-court').name
+            //     : environments[1].name,
+            background: false,
+            playbackSpeed: 1.0,
+            actionStates: {},
+            // camera: DEFAULT_CAMERA,
+            wireframe: false,
+            skeleton: false,
+            grid: false,
+
+            // Lights
+            addLights: true,
+            exposure: 1.0,
+            textureEncoding: 'sRGB',
+            ambientIntensity: 0.3,
+            ambientColor: 0xFFFFFF,
+            directIntensity: 0.8 * Math.PI, // TODO(#116)
+            directColor: 0xFFFFFF,
+            bgColor1: '#ffffff',
+            bgColor2: '#353535'
+        };
+
         THREE.Cache.enabled = false;
         this.scene = new THREE.Scene()
         this.scene.background = new THREE.Color( 0x38374c );
@@ -30,7 +55,7 @@ export default {
             0.1,
             2000
         )
-        
+        this.content = null;
         this.morphCtrls = [];
         this.morphFolder = null;
         this.renderer = new THREE.WebGLRenderer()
@@ -48,12 +73,17 @@ export default {
         this.light.position.set( 0, -1, 0 );
         this.light.position.set( 13, 5, 0 );
         this.scene.add( this.light );
-                
+        this.content = this.scene
+
         this.gridXZ = new THREE.GridHelper(100, 10);
         this.cube = new THREE.Mesh(geometry, material)
         
         this.loader = new GLTFLoader();
-        this.   loader.setCrossOrigin('anonymous');
+        this.loader.setCrossOrigin('anonymous');
+
+        this.addGUI()
+        this.updateGUI();
+        console.log("morphfolder", this.morphFolder)
         // this.loader.load(
         //     // resource URL
         //     'Parrot.glb',
@@ -164,14 +194,89 @@ export default {
         this.controls.update()
         this.controls.enableZoom = true
         
+        //  window.content = this.content;
+         console.log("window", window.content)
         
-
 
         
         
     //   const animate = function() {}
     },
-    setupMorphsGUI: function() {
+    // setContent ( object, clips ) {
+
+    //     this.clear();
+
+    //     const box = new Box3().setFromObject(object);
+    //     const size = box.getSize(new Vector3()).length();
+    //     const center = box.getCenter(new Vector3());
+
+    //     this.controls.reset();
+
+    //     object.position.x += (object.position.x - center.x);
+    //     object.position.y += (object.position.y - center.y);
+    //     object.position.z += (object.position.z - center.z);
+    //     this.controls.maxDistance = size * 10;
+    //     this.defaultCamera.near = size / 100;
+    //     this.defaultCamera.far = size * 100;
+    //     this.defaultCamera.updateProjectionMatrix();
+
+    //     if (this.options.cameraPosition) {
+
+    //     this.defaultCamera.position.fromArray( this.options.cameraPosition );
+    //     this.defaultCamera.lookAt( new Vector3() );
+
+    //     } else {
+
+    //     this.defaultCamera.position.copy(center);
+    //     this.defaultCamera.position.x += size / 2.0;
+    //     this.defaultCamera.position.y += size / 5.0;
+    //     this.defaultCamera.position.z += size / 2.0;
+    //     this.defaultCamera.lookAt(center);
+
+    //     }
+
+    //     this.setCamera(DEFAULT_CAMERA);
+
+    //     this.axesCamera.position.copy(this.defaultCamera.position)
+    //     this.axesCamera.lookAt(this.axesScene.position)
+    //     this.axesCamera.near = size / 100;
+    //     this.axesCamera.far = size * 100;
+    //     this.axesCamera.updateProjectionMatrix();
+    //     this.axesCorner.scale.set(size, size, size);
+
+    //     this.controls.saveState();
+
+    //     this.scene.add(object);
+    //     this.content = object;
+
+    //     this.state.addLights = true;
+
+    //     this.content.traverse((node) => {
+    //     if (node.isLight) {
+    //         this.state.addLights = false;
+    //     } else if (node.isMesh) {
+    //         // TODO(https://github.com/mrdoob/three.js/pull/18235): Clean up.
+    //         node.material.depthWrite = !node.material.transparent;
+    //     }
+    //     });
+
+    //     // this.setClips(clips);
+
+    //     // this.updateLights();
+    //     this.updateGUI();
+    //     this.updateEnvironment();
+    //     // this.updateTextureEncoding();
+    //     this.updateDisplay();
+
+    //     window.content = this.content;
+    //     console.info('[glTF Viewer] THREE.Scene exported as `window.content`.');
+    //     this.printGraph(this.content);
+
+    // },
+    updateEnvironment() {
+        console.log("update environment")
+    },
+    setupMorphsGUI() {
 				
         const morphGui = this.gui.addFolder( "Morphs" );
         
@@ -196,42 +301,80 @@ export default {
         }
         
         morphGui.open();
-			
+		
     },
-    addGUI: function() {
-        const gui = this.gui = new dat.GUI({autoPlace: false, width: 260, hideable: true});
+    addGUI() {
+        this.gui = new dat.GUI({autoPlace: false, width: 260, hideable: true});
+        console.log(this.gui)
 
-        const dispFolder = gui.addFolder('Display');
-        const envBackgroundCtrl = dispFolder.add(this.state, 'background');
-        envBackgroundCtrl.onChange(() => this.updateEnvironment());
+        const dispFolder = this.gui.addFolder('Display');
         const wireframeCtrl = dispFolder.add(this.state, 'wireframe');
         wireframeCtrl.onChange(() => this.updateDisplay());
-        const skeletonCtrl = dispFolder.add(this.state, 'skeleton');
-        skeletonCtrl.onChange(() => this.updateDisplay());
-        const gridCtrl = dispFolder.add(this.state, 'grid');
-        gridCtrl.onChange(() => this.updateDisplay());
-        dispFolder.add(this.controls, 'autoRotate');
-        dispFolder.add(this.controls, 'screenSpacePanning');
-        // const bgColor1Ctrl = dispFolder.addColor(this.state, 'bgColor1');
-        // const bgColor2Ctrl = dispFolder.addColor(this.state, 'bgColor2');
-        // bgColor1Ctrl.onChange(() => this.updateBackground());
-        // bgColor2Ctrl.onChange(() => this.updateBackground());
+        // const dispFolder = gui.addFolder('Display');
+        // const envBackgroundCtrl = dispFolder.add(this.state, 'background');
+        // envBackgroundCtrl.onChange(() => this.updateEnvironment());
+        // const wireframeCtrl = dispFolder.add(this.state, 'wireframe');
+        // wireframeCtrl.onChange(() => this.updateDisplay());
+        // const skeletonCtrl = dispFolder.add(this.state, 'skeleton');
+        // skeletonCtrl.onChange(() => this.updateDisplay());
+        // const gridCtrl = dispFolder.add(this.state, 'grid');
+        // gridCtrl.onChange(() => this.updateDisplay());
+        // dispFolder.add(this.controls, 'autoRotate');
+        // dispFolder.add(this.controls, 'screenSpacePanning');
+        // // const bgColor1Ctrl = dispFolder.addColor(this.state, 'bgColor1');
+        // // const bgColor2Ctrl = dispFolder.addColor(this.state, 'bgColor2');
+        // // bgColor1Ctrl.onChange(() => this.updateBackground());
+        // // bgColor2Ctrl.onChange(() => this.updateBackground());
 
 
         // Morph target controls.
-        this.morphFolder = gui.addFolder('Morph Targets');
+        this.morphFolder = this.gui.addFolder('Morph Targets');
         this.morphFolder.domElement.style.display = 'none';
 
+        const guiWrap = document.createElement('div');
+        // this.el.appendChild( guiWrap );
+        guiWrap.classList.add('gui-wrap');
+        guiWrap.appendChild(this.gui.domElement);
+        this.gui.open();
+
     },
-    updateDisplay: function() {
+    updateDisplay() {
         console.log("update display")
     },
-    updateGui: function() {
+    updateGUI() {
         this.morphCtrls.forEach((ctrl) => ctrl.remove());
         this.morphCtrls.length = 0;
         this.morphFolder.domElement.style.display = 'none';
+
+        const morphMeshes = [];
+
+        this.content.traverse((node) => {
+            console.log("node", node)
+            if (node.isMesh && node.morphTargetInfluences) {
+                morphMeshes.push(node);
+            }
+        });
+
+        console.log("morphMeshes", morphMeshes)
+
+        if (morphMeshes.length) {
+            this.morphFolder.domElement.style.display = '';
+            morphMeshes.forEach((mesh) => {
+                if (mesh.morphTargetInfluences.length) {
+                    const nameCtrl = this.morphFolder.add({name: mesh.name || 'Untitled'}, 'name');
+                    this.morphCtrls.push(nameCtrl);
+                }
+                for (let i = 0; i < mesh.morphTargetInfluences.length; i++) {
+                    const ctrl = this.morphFolder.add(mesh.morphTargetInfluences, i, 0, 1, 0.01).listen();
+                    Object.keys(mesh.morphTargetDictionary).forEach((key) => {
+                        if (key && mesh.morphTargetDictionary[key] === i) ctrl.name(key);
+                    });
+                    this.morphCtrls.push(ctrl);
+                }
+            });
+        }
     },
-    animate: function() {
+    animate() {
         this.controls.update()
         requestAnimationFrame(this.animate)
 
@@ -253,7 +396,7 @@ export default {
             
     //     })
     this.init()
-    this.addGUI()
+    
     this.animate()
   }
 }
