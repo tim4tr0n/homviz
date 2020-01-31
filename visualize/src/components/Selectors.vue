@@ -36,12 +36,6 @@
                 <input @input="($event) => { updateHomunculusPart( $event, 'neck' ) }" type="range" />
             </fieldset>
             <fieldset>
-                <legend>penile gratuity</legend>
-                <input type="radio" name="gender" value="male">fuck yea
-                <br>
-                <input type="radio" name="gender" value="female">hell no
-            </fieldset>
-            <fieldset>
                 <legend>search</legend>
                 <input type="search" />
             </fieldset>

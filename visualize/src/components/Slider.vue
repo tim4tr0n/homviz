@@ -1,6 +1,6 @@
 <template>
   <div class="slidecontainer">
-    <div id="slider" ref="slider"></div>
+    <div id="slider" ref="slider" :key="sliderKey"></div>
   </div>
 </template>
 
@@ -11,6 +11,7 @@ import noUiSlider from 'nouislider';
 export default {
   data () {
     return {
+      sliderKey: 0,
       sliderValue: null,
       queriedBooks: this.$store.getters.queriedBooks,
       selectedBook: this.$store.getters.selectedBook,
@@ -35,6 +36,9 @@ export default {
     }
   },
   methods:{
+    rerenderSlider(){
+      this.sliderKey += 1
+    },
     createSlider(){
         this.Slider = document.getElementById('slider')
         noUiSlider.create(this.Slider, {
@@ -95,10 +99,12 @@ export default {
     //     }
     //   }
     // });
-    
+    this.createSlider()
     this.$store.subscribe((mutation) => {
       if( mutation.type == "changeSelectedSubgenre" || (mutation.type == "changeSelectedLanguage")){
-        this.createSlider()
+        // this.rerenderSlider()
+        // this.createSlider()
+        
       }
     })    
 

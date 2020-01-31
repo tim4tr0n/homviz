@@ -68,7 +68,6 @@ const storeData = {
     selectedSubgenre: null,
     selectedLanguage: 'en',
     queriedBooks: [],
-    witnessedBooks: [],
     selectedBook: null,
     selectedBookIndex: 0, // this is tricky. we should probably reset the selected book every time a new query happens in order to avoid issues with this
   },
@@ -129,9 +128,6 @@ const storeData = {
     },
     changeQueriedBooks(state, value) {
       state.queriedBooks = value
-    },
-    changeWitnessedBooks(state,value){
-      state.witnessedBooks = Array.prototype.push.apply(value,state.witnessedBooks)
     }
   },
   getters: {
@@ -166,8 +162,8 @@ const storeData = {
       const subject = getters.selectedSubgenre
       const language = getters.selectedLanguage.toLowerCase()
       const books = await getBooksBySubject({limit:50, subject, language})
+      console.log("new books have been loaded in", books)
       commit('changeQueriedBooks', books)
-      commit('changeWitnessedBooks', books)
     },
     changeSelectedBookAndBodyState({ commit, getters}, value) {
       const selectedBook = value.book;

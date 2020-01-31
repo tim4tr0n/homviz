@@ -64,15 +64,7 @@ export default {
       if( mutation.type == "changeHomunculusState"){
         console.log("CHANGE HOMUNCULUS STATE")
         const homunculusState = mutation.payload
-        const homunculusParts = Object.keys(homunculusState)
-        const homunculusValues = Object.values(homunculusState)
-        const maxValue = Math.max(...homunculusValues);
-        for (var index = 0; index < homunculusParts.length; index++){
-            const partValue = homunculusState[homunculusParts[index]]
-            console.log("homunculusPart", homunculusParts[index])
-            console.log("value to set", partValue, maxValue)
-            this.morphTargets[index].influence = partValue / maxValue
-        }
+        this.morphHomunculus(homunculusState)
       }
     });
 
@@ -84,7 +76,15 @@ export default {
   },
 
   methods: {
-    
+    morphHomunculus(homunculusState){
+        const homunculusParts = Object.keys(homunculusState)
+        const homunculusValues = Object.values(homunculusState)
+        const maxValue = Math.max(...homunculusValues);
+        for (var index = 0; index < homunculusParts.length; index++){
+            const partValue = homunculusState[homunculusParts[index]]
+            this.morphTargets[index].influence = partValue / maxValue
+        }
+    },
     changeMorphTarget(e, index){
         this.morphTargets[index].influence = e.srcElement.valueAsNumber / 100
     },
