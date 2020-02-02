@@ -87,6 +87,10 @@ const storeData = {
       const sliderValue = value.sliderValue/100
       state.homunculusState["thigh"] = sliderValue
     },
+    changeHomunculusPartByScheme(state, value){ // this is here only to prevent bugs and shit - delete for production
+      const sliderValue = value.sliderValue/100
+      state.homunculusState["thigh"] = sliderValue
+    },
     changeHomunculusPartState(state, value){
       const part = value.part
       const sliderValue = value.sliderValue/100

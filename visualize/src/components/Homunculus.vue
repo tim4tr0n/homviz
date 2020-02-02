@@ -7,9 +7,16 @@
       touch-action="none"
       oncontextmenu="return false"
     ></canvas>
-    <div v-for="(morphTarget, index) in this.morphTargets"  v-bind:key="morphTarget.idx">
-      <input type="range" @input="($event) => { updateHomunculusPart( $event, index ) }"/>{{morphTarget.name}}
+
+    <div v-if="this.debug == true">
+      <div v-for="meshName in Object.keys(morphTargetScheme)" v-bind:key="meshName.idx">
+        <h4>{{meshName}}</h4>
+        <div v-for="targetName in Object.keys(morphTargetScheme[meshName])"  v-bind:key="targetName.idx">
+          <input type="range" @input="($event) => { updateHomunculusPart( $event, meshName, targetName ) }"/>{{targetName}}
+        </div>
+      </div>
     </div>
+
   </div>
 </template>
 
@@ -25,7 +32,7 @@ import {
 
 import * as BABYLON from "babylonjs"
 import { GLTFFileLoader } from "@babylonjs/loaders"
-
+// import HomunculusModel from "../../public/homunculus_fin.gltf"
 
 export default {
   name: 'Homunculus',
@@ -43,7 +50,10 @@ export default {
         sceneReady: false,
         canvas: undefined
       },
-      morphTargets: []
+      morphTargets: [],
+      morphTargetScheme: {},
+      manifestScheme: {},
+      debug: false
     }
   },
 
@@ -63,6 +73,12 @@ export default {
       if(mutation.type == "changeHomunculusPartByIndex"){
         this.morphTargets[mutation.payload.index].influence = mutation.payload.sliderValue / 100
       }
+
+      if(mutation.type == "changeHomunculusPartByScheme"){
+        var subObject = this.morphTargetScheme[mutation.payload.meshName]
+        var morphTarget = subObject[mutation.payload.targetName]
+        morphTarget.influence = mutation.payload.sliderValue / 100
+      }
     });
 
     //need to port this to a function and do a lot more complex stuff to make this actually look good
@@ -73,17 +89,15 @@ export default {
         this.morphHomunculus(homunculusState)
       }
     });
-
   },
 
   beforeDestroy() {
     this.babylon.scene.dispose()
     this.engine.dispose()
   },
-
   methods: {
-    updateHomunculusPart(e, index) {
-            this.$store.commit("changeHomunculusPartByIndex", { sliderValue: e.srcElement.valueAsNumber, index } )
+    updateHomunculusPart(e, meshName, targetName) {
+      this.$store.commit("changeHomunculusPartByScheme", { sliderValue: e.srcElement.valueAsNumber, meshName, targetName } )
     },
     // MODIFY FOR MULTIPLE MORPH TARGETS PER MESH
     morphHomunculus(homunculusState){
@@ -98,19 +112,19 @@ export default {
     changeMorphTarget(e, index){
         this.morphTargets[index].influence = e.srcElement.valueAsNumber / 100
     },
-    importHom(scene) {
+    async importHom(scene) {
       var homModel = null
       BABYLON.SceneLoader.RegisterPlugin(new GLTFFileLoader())
       var self = this
       console.log("THIS", this)
-      BABYLON.SceneLoader.Append("/", "homunculus_fin.gltf", scene, async (meshes) => {
+      var sceneLoader = BABYLON.SceneLoader.Append("/", "homunculus_fin.gltf", scene, async (meshes) => {
             // Create a default arc rotate camera and light.
             scene.createDefaultCameraOrLight(true, true, true);
             scene.createDefaultEnvironment();
             scene.activeCamera.useAutoRotationBehavior = true;
             scene.activeCamera.lowerRadiusLimit = 1;
             scene.activeCamera.upperRadiusLimit = 15;
-
+            
             // The default camera looks at the back of the asset.
             // Rotate the camera by 180 degrees to the front of the asset.
             scene.activeCamera.position = new BABYLON.Vector3(1,1,5)
@@ -135,12 +149,68 @@ export default {
               }
             }
             
+
+            // this is extremely dangerous. no guarantee that it loads in time. pls add promise or something
+            console.log("manifest scheme output within THIS", this.manifestScheme)
+
+            // populate morph target scheme
+            var morphTargetScheme = {}
+            for ( var meshIndex = 1; meshIndex < meshes.meshes.length; meshIndex++){
+              var mesh = meshes.meshes[meshIndex]
+              // console.log("mesh in loop:", mesh)
+              var meshName = mesh.name
+              morphTargetScheme[meshName] = {}
+              //now populate with morph targets
+              if ( mesh.morphTargetManager == null){
+                continue
+              }
+              for ( var morphTargetIndex = 0; morphTargetIndex < mesh.morphTargetManager.numTargets; morphTargetIndex++){
+
+                var thisMorphTarget = mesh.morphTargetManager.getTarget(morphTargetIndex)
+                // console.log("morph target within for loop:", thisMorphTarget)
+                // console.log("morph target scheme so far", morphTargetScheme)
+
+                var manifestSubObject = this.manifestScheme[meshName]
+                console.log(meshName, "=>", manifestSubObject)
+                var targetNamesArray = Object.keys(manifestSubObject)
+                var subObject = morphTargetScheme[meshName]
+                var morphTargetName =  targetNamesArray[morphTargetIndex]
+
+                subObject[morphTargetName] = thisMorphTarget
+              }
+            }
+
+            console.log("morphTargetScheme Output", morphTargetScheme)
             console.log("morphTargets", morphTargets)
             console.log("SELF", self)
             console.log("THIS", this)
+            this.morphTargetScheme = morphTargetScheme
             this.morphTargets = morphTargets
 
       });
+      sceneLoader.onParsedObservable.add(gltfBabylon => {
+        var manifest = gltfBabylon.json;
+        console.log("MANIFEST", manifest)
+        // go through GLTF file to get morphTarget names (this is really fuckin stupid, shame on babylon for not building morph names into their parser)
+        var manifestScheme = {}
+
+        for ( var meshIndex = 0; meshIndex < manifest.meshes.length; meshIndex++){
+          var mesh = manifest.meshes[meshIndex]
+          var meshName = mesh.name
+          manifestScheme[meshName] = {}
+
+          var meshObject = manifestScheme[meshName]
+          if(mesh.extras == null){
+            console.log("SKIPPING THAT SHIT")
+            continue
+          }
+          for ( var morphNameIndex = 0; morphNameIndex < mesh.extras.targetNames.length; morphNameIndex++){
+            var targetName = mesh.extras.targetNames[morphNameIndex]
+            meshObject[targetName] = null
+          }
+        }
+        this.manifestScheme = manifestScheme
+      })
     },
     createScene() {
       // Create render loop, a camera and some basic lights:
