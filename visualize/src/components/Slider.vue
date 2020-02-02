@@ -4,8 +4,6 @@
   </div>
 </template>
 
-
-
 <script>
 import noUiSlider from 'nouislider';
 export default {

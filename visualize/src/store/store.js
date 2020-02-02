@@ -57,7 +57,9 @@ const storeData = {
       "knees": 0,
       "calf": 0,
       "foot": 0,
-      "neck": 0
+      "neck": 0,
+      "stomach": 0,
+      
     },
     sliderPosition: 0,
     genres: {},
@@ -80,6 +82,10 @@ const storeData = {
     },
     changeHomunculusState(state, value){
       state.homunculusState = value
+    },
+    changeHomunculusPartByIndex(state, value){ // this is here only to prevent bugs and shit - delete for production
+      const sliderValue = value.sliderValue/100
+      state.homunculusState["thigh"] = sliderValue
     },
     changeHomunculusPartState(state, value){
       const part = value.part
@@ -200,4 +206,3 @@ const storeData = {
 }
 
 export const store = new Vuex.Store(storeData);
-  
