@@ -43,24 +43,7 @@ async function getBooksBySubject({limit=20,subject="PQ",language="en"}) {
 const storeData = {
   state: {
     bodyState: {},
-    homunculusState: {
-      "nail": 0,
-      "finger": 0,
-      "hand": 0,
-      "arm": 0,
-      "shoulders": 0,
-      "chest": 0,
-      "abdomen": 0,
-      "back": 0,
-      "ass": 0,
-      "thigh": 0,
-      "knees": 0,
-      "calf": 0,
-      "foot": 0,
-      "neck": 0,
-      "stomach": 0,
-      
-    },
+    homunculusState: {},
     sliderPosition: 0,
     genres: {},
     subgenres: {},
@@ -98,6 +81,9 @@ const storeData = {
     },
     loadBodyParts(state, value) {
       state.bodyParts = value
+    },
+    loadHomunculusState(state, value) {
+      state.homunculusState = value
     },
     loadGenres(state, value) {
       state.genres = {...state.genres,...value}

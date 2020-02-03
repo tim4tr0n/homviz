@@ -101,6 +101,7 @@ export default {
     },
     // MODIFY FOR MULTIPLE MORPH TARGETS PER MESH
     morphHomunculus(homunculusState){
+        console.log("HOMUNCULUS STATE UPON REQUESTED MORPHING", homunculusState)
         const homunculusParts = Object.keys(homunculusState)
         const homunculusValues = Object.values(homunculusState)
         const maxValue = Math.max(...homunculusValues);

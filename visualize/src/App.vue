@@ -42,6 +42,12 @@
                     }
                     if(doc.id == "bodyParts"){
                         this.$store.commit('loadBodyParts', data);
+                        var homunculusState = {}
+                        var bodyParts = Object.keys(data)
+                        for (var index = 0; index < bodyParts.length; index++){
+                          homunculusState[bodyParts[index]] = 0
+                        }
+                        this.$store.commit('loadHomunculusState', homunculusState)
                     }
                 });
             } catch (err) {
