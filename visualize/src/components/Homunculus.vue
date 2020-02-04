@@ -53,6 +53,7 @@ export default {
       morphTargets: [],
       morphTargetScheme: {},
       manifestScheme: {},
+      bodyParts: this.$store.getters.bodyParts,
       debug: false
     }
   },
@@ -95,19 +96,83 @@ export default {
     this.babylon.scene.dispose()
     this.engine.dispose()
   },
+  computed: {
+    dbInfo() {
+      return {
+        bodyParts: this.$store.getters.bodyParts
+      }
+    }
+  },
   methods: {
     updateHomunculusPart(e, meshName, targetName) {
       this.$store.commit("changeHomunculusPartByScheme", { sliderValue: e.srcElement.valueAsNumber, meshName, targetName } )
     },
     // MODIFY FOR MULTIPLE MORPH TARGETS PER MESH
-    morphHomunculus(homunculusState){
+    resetHomunculus(homunculusState){
+        const bodyPartPaths = this.$store.getters.bodyParts
+        const homunculusParts = Object.keys(homunculusState)
+
+
+        for (var index = 0; index < homunculusParts.length; index++){
+            const part = homunculusParts[index]
+            const partPath = bodyPartPaths[part]
+            if (partPath == null){
+              continue
+            }
+            // go through every morph target for the given word that we care about
+            for (var meshIndex = 0; meshIndex < partPath.meshes.length; meshIndex++){
+              var mesh = partPath.meshes[meshIndex]
+              for(var morphIndex = 0; morphIndex < partPath.targetNames.length; morphIndex++){
+                var targetName = partPath.targetNames[morphIndex]
+                // console.log("targetName", targetName)
+                var thisMesh = this.morphTargetScheme[mesh]
+                // console.log("thisMesh", thisMesh)
+                var thisMorphTarget = thisMesh[targetName]
+                thisMorphTarget.influence = 0
+              }
+            }
+        }
+    },
+    // MODIFY FOR MULTIPLE MORPH TARGETS PER MESH
+    async morphHomunculus(homunculusState){
+        //set everything to zero, first - i realize that this is a terrible way to do it whatever
+        await this.resetHomunculus(homunculusState)
+        // whittle down to the parts we actually care about
         console.log("HOMUNCULUS STATE UPON REQUESTED MORPHING", homunculusState)
+        console.log("parts that we want to morph")
+        const bodyPartPaths = this.$store.getters.bodyParts
         const homunculusParts = Object.keys(homunculusState)
         const homunculusValues = Object.values(homunculusState)
-        const maxValue = Math.max(...homunculusValues);
+        var maxValue = Math.max(...homunculusValues);
+        if (maxValue == 0){
+          maxValue = 1
+        }
         for (var index = 0; index < homunculusParts.length; index++){
-            const partValue = homunculusState[homunculusParts[index]]
-            this.morphTargets[index].influence = partValue / maxValue
+            const part = homunculusParts[index]
+            const partValue = homunculusState[part]
+            const partPath = bodyPartPaths[part]
+            // console.log("bodyPartPaths", bodyPartPaths)
+            if (partPath == null){
+              continue
+            }
+            // go through every morph target for the given word that we care about
+            for (var meshIndex = 0; meshIndex < partPath.meshes.length; meshIndex++){
+              var mesh = partPath.meshes[meshIndex]
+              // console.log("mesh we got within the loop", mesh)  
+              for(var morphIndex = 0; morphIndex < partPath.targetNames.length; morphIndex++){
+                var targetName = partPath.targetNames[morphIndex]
+                // console.log("targetName", targetName)
+                var thisMesh = this.morphTargetScheme[mesh]
+                // console.log("thisMesh", thisMesh)
+                var thisMorphTarget = thisMesh[targetName]
+                var currentMorphInfluence = thisMorphTarget.influence
+                var newInfluence = partValue / maxValue
+                if (currentMorphInfluence < newInfluence){
+                  console.log(part, "=>", mesh, "=>", targetName, "=>", "from", thisMorphTarget.influence, "to", partValue / maxValue)
+                  thisMorphTarget.influence = newInfluence // change the way we do maximum here
+                }
+              }
+            }
         }
     },
     changeMorphTarget(e, index){
@@ -116,19 +181,19 @@ export default {
     async importHom(scene) {
       var homModel = null
       BABYLON.SceneLoader.RegisterPlugin(new GLTFFileLoader())
-      var self = this
-      console.log("THIS", this)
-      var sceneLoader = BABYLON.SceneLoader.Append("/", "homunculus_fin.gltf", scene, async (meshes) => {
+      var sceneLoader = BABYLON.SceneLoader.Append("/", "homunculus_final_product.gltf", scene, async (meshes) => {
             // Create a default arc rotate camera and light.
             scene.createDefaultCameraOrLight(true, true, true);
             scene.createDefaultEnvironment();
             scene.activeCamera.useAutoRotationBehavior = true;
             scene.activeCamera.lowerRadiusLimit = 1;
-            scene.activeCamera.upperRadiusLimit = 15;
+            scene.activeCamera.upperRadiusLimit = 2.5;
             
+
+ 
             // The default camera looks at the back of the asset.
             // Rotate the camera by 180 degrees to the front of the asset.
-            scene.activeCamera.position = new BABYLON.Vector3(1,1,5)
+            // scene.activeCamera.position = new BABYLON.Vector3(1,1,5)
             scene.activeCamera.alpha += Math.PI;
             // scene.activeCamera.beta += Math.PI;
             console.log("all meshes available", meshes)
@@ -172,7 +237,7 @@ export default {
                 // console.log("morph target scheme so far", morphTargetScheme)
 
                 var manifestSubObject = this.manifestScheme[meshName]
-                console.log(meshName, "=>", manifestSubObject)
+                // console.log(meshName, "=>", manifestSubObject)
                 var targetNamesArray = Object.keys(manifestSubObject)
                 var subObject = morphTargetScheme[meshName]
                 var morphTargetName =  targetNamesArray[morphTargetIndex]
@@ -182,16 +247,13 @@ export default {
             }
 
             console.log("morphTargetScheme Output", morphTargetScheme)
-            console.log("morphTargets", morphTargets)
-            console.log("SELF", self)
-            console.log("THIS", this)
             this.morphTargetScheme = morphTargetScheme
             this.morphTargets = morphTargets
 
       });
       sceneLoader.onParsedObservable.add(gltfBabylon => {
         var manifest = gltfBabylon.json;
-        console.log("MANIFEST", manifest)
+        // console.log("MANIFEST", manifest)
         // go through GLTF file to get morphTarget names (this is really fuckin stupid, shame on babylon for not building morph names into their parser)
         var manifestScheme = {}
 
@@ -202,7 +264,7 @@ export default {
 
           var meshObject = manifestScheme[meshName]
           if(mesh.extras == null){
-            console.log("SKIPPING THAT SHIT")
+            // console.log("SKIPPING THAT SHIT")
             continue
           }
           for ( var morphNameIndex = 0; morphNameIndex < mesh.extras.targetNames.length; morphNameIndex++){
@@ -236,10 +298,12 @@ export default {
       )
       camera.attachControl(this.$refs.canvas, true)
 
-      new HemisphericLight('light1', new Vector3(1, 1, 0), this.babylon.scene)
-      new HemisphericLight('light4', new Vector3(-2, -4, 0), this.babylon.scene)
+      // new HemisphericLight('light1', new Vector3(1, 1, 0), this.babylon.scene)
+      // new HemisphericLight('light4', new Vector3(-2, -4, 0), this.babylon.scene)
+      new HemisphericLight('light5', new Vector3(-2, 4, 0), this.babylon.scene)
       new PointLight('light2', new Vector3(0, 1, -1), this.babylon.scene)
       new PointLight('light3', new Vector3(1, 1, 1), this.babylon.scene)
+      
       // this.babylon.scene.debugLayer.show();
       this.engine.runRenderLoop(() => {
         this.babylon.scene.render()

@@ -14,6 +14,8 @@ const db = firebase.firestore();
 async function getBooksBySubject({limit=20,subject="PQ",language="en"}) {
   try {
       var databaseInfoSnapshot = null
+      store.commit("changeLoadingStatus", true)
+      // store.commit("changeLoadingStatus", false) .then( () => console.log("Done loading!") )
       if (subject == null && language == null){
         databaseInfoSnapshot = await db.collection('books').limit(limit).get()
       }
@@ -25,6 +27,8 @@ async function getBooksBySubject({limit=20,subject="PQ",language="en"}) {
       } else {
         databaseInfoSnapshot = await db.collection('books').where("subject", "==", subject).where("language", "==", language).limit(limit).get()
       }
+      console.log("we're done loading this shit")
+      store.commit("changeLoadingStatus", false)
       console.log("getBooksBySubject", subject)
       console.log("query result size:", databaseInfoSnapshot.size)
       const books = []
@@ -43,6 +47,7 @@ async function getBooksBySubject({limit=20,subject="PQ",language="en"}) {
 const storeData = {
   state: {
     bodyState: {},
+    loadingBooks: false,
     homunculusState: {},
     sliderPosition: 0,
     genres: {},
@@ -57,6 +62,10 @@ const storeData = {
     selectedBookIndex: 0, // this is tricky. we should probably reset the selected book every time a new query happens in order to avoid issues with this
   },
   mutations: {
+    changeLoadingStatus(state, value){
+      console.log("changing loading status to:", value)
+      state.loadingBooks = value
+    },
     changeSlider(state, value) {
       state.sliderPosition = value
     },
@@ -151,7 +160,8 @@ const storeData = {
     selectedLanguage: state => state.selectedLanguage,
     selectedBook: state => state.selectedBook,
     selectedBookIndex: state => state.selectedBookIndex,
-    queriedBooks: state => state.queriedBooks
+    queriedBooks: state => state.queriedBooks,
+    loadingBooks: state => state.loadingBooks
   },
   actions: {
     async queryBooks({ commit, getters }) {
@@ -174,18 +184,16 @@ const storeData = {
                   [key]: selectedBook[key]
               };
           }, {});
-      
-      const changedHomunculusState = Object.keys(bookBodyParts)
-          .filter(key => key in homunculusState) // figure out how to deal with plurals / synonyms here
+      const resetHomunculusState = Object.keys(homunculusState) // very unelegant way to reset the shape -> maybe add option to accumulate!!!
+          .filter(key => key in homunculusState)
           .reduce((obj, key) => {
               return {
                   ...obj,
-                  [key]: bookBodyParts[key]
+                  [key]: 0
               };
           }, {});
       
-      console.log("CHANGED HOMUNCULUS OBJECT", changedHomunculusState)
-      const mergedHomunculusState = {...homunculusState, ...changedHomunculusState} // this is shitty because it accumulates over time. need to reset each time god dammit
+      const mergedHomunculusState = {...resetHomunculusState, ...bookBodyParts} 
       commit("changeHomunculusState", mergedHomunculusState)
       commit("changeSelectedBook", selectedBook)
       commit("changeSelectedBookIndex", index)

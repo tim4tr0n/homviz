@@ -6,8 +6,11 @@
     <div class="bookscontainer">
         <div v-if="stats.queriedBooks.length == 0" class="defaultstats">
             <br>
+            <loading :active.sync="stats.loadingBooks"
+            :can-cancel="false" 
+            :is-full-page="false"></loading>
             <br>
-            <h3><i>Select your book parameters!</i></h3>
+            <h3><i>No books queried. Change your book parameters!</i></h3>
         </div>
         <div v-else v-bind:class="{ selected: book == stats.selectedBook, bookitem: !(book == stats.selectedBook) }" v-for="(book, index) in stats.queriedBooks" @click="selectBook(book, index)" v-bind:key="book.idx">
             <hr class="sub-breaker">
@@ -42,7 +45,11 @@
 <script>
 import Vue from 'vue'
 import * as VueWindow from '@hscmap/vue-window'
+import Loading from 'vue-loading-overlay';
+// Import stylesheet
+import 'vue-loading-overlay/dist/vue-loading.css';
 Vue.use(VueWindow)
+
 
 export default {
     name: 'Stats',
@@ -53,7 +60,9 @@ export default {
             queriedBooks: this.$store.getters.queriedBooks,
             bodyState: this.$store.getters.bodyState,
             bodyParts: this.$store.getters.bodyParts,
-            selectedBook: this.$store.getters.selectedBook
+            selectedBook: this.$store.getters.selectedBook,
+            isLoading: true,
+            loadingBooks: this.$store.getters.loadingBooks
         }
     },
     computed: {
@@ -64,7 +73,8 @@ export default {
                 bodyState: this.$store.getters.bodyState,
                 queriedBooks: this.$store.getters.queriedBooks,
                 selectedBook: this.$store.getters.selectedBook,
-                bodyParts: this.$store.getters.bodyParts
+                bodyParts: this.$store.getters.bodyParts,
+                loadingBooks: this.$store.getters.loadingBooks
             }
         },
         bookBodyParts() {
@@ -81,6 +91,9 @@ export default {
             return bookBodyParts
             
         }
+    },
+    components: {
+        Loading
     },
     methods: {
         selectBook: function(book, index){

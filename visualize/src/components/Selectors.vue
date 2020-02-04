@@ -3,8 +3,13 @@
     <hsc-window-style-metal>
         <hsc-window title="hom info" >
             <fieldset>
-                <legend>pointy pointy</legend>
+                <legend>Year Selected</legend>
                 {{ selectorData.sliderPosition }}
+            </fieldset>
+            <fieldset>
+                <legend>View by Year</legend>
+                <input type="radio" name="gender" value="male"> True
+                <input type="radio" name="gender" value="female"> False
             </fieldset>
             <fieldset>
                 <legend>Genre</legend>
@@ -28,12 +33,8 @@
                 </select>
             </fieldset>
             <fieldset>
-                <legend>thigh</legend>
+                <legend>adjust thingie</legend>
                 <input @input="($event) => { updateHomunculusPart( $event, 'thigh' ) }" type="range" />
-            </fieldset>
-            <fieldset>
-                <legend>neck</legend>
-                <input @input="($event) => { updateHomunculusPart( $event, 'neck' ) }" type="range" />
             </fieldset>
             <fieldset>
                 <legend>search</legend>
