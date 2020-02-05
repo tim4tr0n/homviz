@@ -1,11 +1,11 @@
 <template>
-  <div class="slidecontainer">
-    <div id="slider" ref="slider" :key="sliderKey"></div>
+  <div v-if="stats.viewByYearMode" class="slidecontainer">
+    <input @input="changeSlider" min="0" v-bind:max="stats.max" id="slider" type="range"/>
   </div>
 </template>
 
 <script>
-import noUiSlider from 'nouislider';
+
 export default {
   data () {
     return {
@@ -14,6 +14,7 @@ export default {
       queriedBooks: this.$store.getters.queriedBooks,
       selectedBook: this.$store.getters.selectedBook,
       selectedBookIndex: this.$store.getters.selectedBookIndex,
+      viewByYearMode: this.$store.getters.viewByYearMode,
       slider: {
           startMin: 25,
           startMax: 75,
@@ -21,8 +22,7 @@ export default {
           max: 100,
           start: 40,
           step: 1
-      },
-      Slider: document.getElementById('slider'),
+      }
     }
   },
   computed: {
@@ -30,81 +30,32 @@ export default {
         return {
           queriedBooks: this.$store.getters.queriedBooks,
           selectedBook: this.$store.getters.selectedBook,
+          viewByYearMode: this.$store.getters.viewByYearMode,
+          max: this.$store.getters.queriedBooks.length - 1,
         }
     }
   },
   methods:{
+    changeSlider(e){
+      console.log("slider changed", e.target.valueAsNumber)
+      const index = e.target.valueAsNumber
+      const book = this.stats.queriedBooks[index]
+      this.$store.dispatch('changeSelectedBookAndBodyState', { book, index } )
+    },
     rerenderSlider(){
       this.sliderKey += 1
-    },
-    createSlider(){
-        this.Slider = document.getElementById('slider')
-        noUiSlider.create(this.Slider, {
-          start: [this.slider.startMin],
-          step: this.slider.step,
-          tooltips: [true],
-          range:{
-            'min': [0],
-            '10%': [10, 10],
-            '50%': [80, 50],
-            '80%': 150,
-            'max': 200
-          },
-          pips: {
-            mode: 'steps',
-            density: 5,
-            filter: function( value ) {return value % 4 ? 2 : 1;},
-            format: {
-              to: function ( value ) {
-                return value + ' ';
-              },
-              from: function ( value ) {
-                return value.replace(' ', '');
-              }
-            }
-          }
-        });
-
-        this.Slider.noUiSlider.on('update',(values) => {
-          this.$store.commit('changeSlider', values[0])
-        });
     }
   },
   mounted: function() {
-    // this.Slider = document.getElementById('slider')
-    // noUiSlider.create(this.Slider, {
-    //   start: [this.slider.startMin],
-    //   step: this.slider.step,
-    //   tooltips: [true],
-    //   range:{
-    //     'min': [0],
-    //     '10%': [10, 10],
-    //     '50%': [80, 50],
-    //     '80%': 150,
-    //     'max': 200
-    //   },
-    //   pips: {
-    //     mode: 'steps',
-    //     density: 5,
-    //     filter: function( value ) {return value % 4 ? 2 : 1;},
-    //     format: {
-    //       to: function ( value ) {
-    //         return value + ' ';
-    //       },
-    //       from: function ( value ) {
-    //         return value.replace(' ', '');
-    //       }
-    //     }
-    //   }
-    // });
-    this.createSlider()
-    this.$store.subscribe((mutation) => {
-      if( mutation.type == "changeSelectedSubgenre" || (mutation.type == "changeSelectedLanguage")){
-        // this.rerenderSlider()
-        // this.createSlider()
+
+    // this.createSlider()
+    // this.$store.subscribe((mutation) => {
+    //   if( mutation.type == "changeSelectedSubgenre" || (mutation.type == "changeSelectedLanguage")){
+    //     // this.rerenderSlider()
+    //     // this.createSlider()
         
-      }
-    })    
+    //   }
+    // })    
 
   
     

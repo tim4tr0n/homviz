@@ -11,21 +11,39 @@ initFirebase()
   .catch( err => console.error(err))
 
 const db = firebase.firestore();
-async function getBooksBySubject({limit=20,subject="PQ",language="en"}) {
+async function getBooksBySubject({limit=20,subject="PQ",language="en",byYear=false}) {
   try {
       var databaseInfoSnapshot = null
       store.commit("changeLoadingStatus", true)
-      // store.commit("changeLoadingStatus", false) .then( () => console.log("Done loading!") )
-      if (subject == null && language == null){
+      if (byYear) {
+        console.log("querying by year")
+        
+        if (subject == null && language == null){
+          databaseInfoSnapshot = await db.collection('books').limit(limit).where('publicationDate', '>=', 0).get()
+        }
+        else if (subject == null){
+          console.log("actually in here")
+          databaseInfoSnapshot = await db.collection('books').limit(limit).where("language", "==", language).where('publicationDate', '>=', 0).get()
+        }
+        else if (language == null){
+          databaseInfoSnapshot = await db.collection('books').limit(limit).where("subject", "==", subject).where('publicationDate', '>=', 0).get()
+        } else {
+          console.log("we're in here")
+          console.log("subject", subject)
+          console.log("language", language)
+          databaseInfoSnapshot = await db.collection('books').limit(limit).where("subject", "==", subject).where("language", "==", language).where('publicationDate', '>=', 0).get()
+        }
+      }
+      else if (subject == null && language == null){
         databaseInfoSnapshot = await db.collection('books').limit(limit).get()
       }
       else if (subject == null){
-        databaseInfoSnapshot = await db.collection('books').where("language", "==", language).limit(limit).get()
+        databaseInfoSnapshot = await db.collection('books').limit(limit).where("language", "==", language).get()
       }
       else if (language == null){
-        databaseInfoSnapshot = await db.collection('books').where("subject", "==", subject).limit(limit).get()
+        databaseInfoSnapshot = await db.collection('books').limit(limit).where("subject", "==", subject).get()
       } else {
-        databaseInfoSnapshot = await db.collection('books').where("subject", "==", subject).where("language", "==", language).limit(limit).get()
+        databaseInfoSnapshot = await db.collection('books').limit(limit).where("subject", "==", subject).where("language", "==", language).get()
       }
       console.log("we're done loading this shit")
       store.commit("changeLoadingStatus", false)
@@ -60,11 +78,16 @@ const storeData = {
     queriedBooks: [],
     selectedBook: null,
     selectedBookIndex: 0, // this is tricky. we should probably reset the selected book every time a new query happens in order to avoid issues with this
+    viewByYearMode: false,
+    latestYear: null,
+    earliestYear: null
   },
   mutations: {
     changeLoadingStatus(state, value){
-      console.log("changing loading status to:", value)
       state.loadingBooks = value
+    },
+    changeViewByYearMode(state, value){
+      state.viewByYearMode = value
     },
     changeSlider(state, value) {
       state.sliderPosition = value
@@ -132,7 +155,16 @@ const storeData = {
       state.selectedBookIndex = value
     },
     changeQueriedBooks(state, value) {
+      const queriedBooks = value
+      const viewByYearMode = state.viewByYearMode
+      if (viewByYearMode){
+        console.log("populating by year too")
+        state.earliestYear = queriedBooks[0].publicationDate
+        state.latestYear = queriedBooks[queriedBooks.length  - 1].publicationDate
+      }
+      
       state.queriedBooks = value
+      
     }
   },
   getters: {
@@ -161,13 +193,17 @@ const storeData = {
     selectedBook: state => state.selectedBook,
     selectedBookIndex: state => state.selectedBookIndex,
     queriedBooks: state => state.queriedBooks,
-    loadingBooks: state => state.loadingBooks
+    loadingBooks: state => state.loadingBooks,
+    viewByYearMode: state => state.viewByYearMode,
+    earliestYear: state => state.earliestYear,
+    latestYear: state => state.latestYear
   },
   actions: {
     async queryBooks({ commit, getters }) {
       const subject = getters.selectedSubgenre
       const language = getters.selectedLanguage.toLowerCase()
-      const books = await getBooksBySubject({limit:50, subject, language})
+      const byYear = getters.viewByYearMode
+      const books = await getBooksBySubject({limit:50, subject, language, byYear})
       console.log("new books have been loaded in", books)
       commit('changeQueriedBooks', books)
     },

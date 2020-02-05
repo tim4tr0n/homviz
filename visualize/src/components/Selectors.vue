@@ -3,13 +3,9 @@
     <hsc-window-style-metal>
         <hsc-window title="hom info" >
             <fieldset>
-                <legend>Year Selected</legend>
-                {{ selectorData.sliderPosition }}
-            </fieldset>
-            <fieldset>
                 <legend>View by Year</legend>
-                <input type="radio" name="gender" value="male"> True
-                <input type="radio" name="gender" value="female"> False
+                <input type="radio" name="viewByYear" value=true @change="($event) => { selectViewByYearMode($event) }"> True
+                <input type="radio" name="viewByYear" checked value=false @change="($event) => { selectViewByYearMode($event) }"> False
             </fieldset>
             <fieldset>
                 <legend>Genre</legend>
@@ -33,12 +29,8 @@
                 </select>
             </fieldset>
             <fieldset>
-                <legend>adjust thingie</legend>
-                <input @input="($event) => { updateHomunculusPart( $event, 'thigh' ) }" type="range" />
-            </fieldset>
-            <fieldset>
-                <legend>search</legend>
-                <input type="search" />
+                <legend>query limit</legend>
+                <input type="number" :max=200 />
             </fieldset>
         </hsc-window>
     </hsc-window-style-metal>
@@ -63,10 +55,36 @@ export default {
             languages: this.$store.getters.languages,
             selectedGenre: this.$store.getters.selectedGenre,
             selectedSubgenre: this.$store.getters.selectedSubgenre,
-            selectedLanguage: this.$store.getters.selectedLanguage
+            selectedLanguage: this.$store.getters.selectedLanguage,
+            playingMusic: false
         }
     },
     methods: {
+        selectViewByYearMode(e){
+            
+            console.log("selection event", e.target.value)
+            this.playMusic()
+            if ( e.target.value == "true" ){
+                var newValue = true
+            } else {
+                newValue = false
+            }
+            this.$store.commit("changeViewByYearMode", newValue)
+            if (e.target.value == "true"){
+                console.log("we re gonna query that shit")
+                this.$store.dispatch('queryBooks')
+            }
+        },
+        playMusic(){
+            if (!this.playingMusic){
+                var audio = new Audio('https://drive.google.com/uc?export=download&id=1I-Hic4KpHB5GDvXxOhuHnyK0t4NK2U8K')
+                audio.play()
+                this.playingMusic = true
+                audio.onended = () => {
+                    audio.play()
+                }
+            }
+        },
         updateGenre(e) {
             this.$store.commit("changeSelectedGenre", e.srcElement.value)
         },
@@ -75,9 +93,6 @@ export default {
         },
         updateLanguage(e) {
             this.$store.commit("changeSelectedLanguage", e.srcElement.value)
-        },
-        updateHomunculusPart(e, part) {
-            this.$store.commit("changeHomunculusPartState", { sliderValue: e.srcElement.valueAsNumber, part } )
         }
     },
     computed: {

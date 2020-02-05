@@ -1,5 +1,21 @@
 <template>
   <div class="Scene">
+    <v-dialog/>
+    <hsc-menu-style-white class="menubar">
+        <hsc-menu-bar >
+            <hsc-menu-bar-item label="homviz">
+                <hsc-menu-item label="fertilize homunculus" @click="openLinkOne" />
+                <hsc-menu-item label="imbibe in the extract" @click="openLinkTwo" />
+                <hsc-menu-separator/>
+                <hsc-menu-item label="h̸͍̪̞͝ͅo̴̹̬̟̺̙̝̻̥̟͍͖̬͋̄́͊̔̾̈͛̏̈̚͘w̴͙̞̳̖̜̜̒̃̅̏" @click="openTutorialModal" />
+                <hsc-menu-item label="Cease" @click="window.alert('Save')" :disabled="true" />
+            </hsc-menu-bar-item>
+            <hsc-menu-bar-item label="Info">
+                <hsc-menu-item label="About" @click="openAboutModal" />
+            </hsc-menu-bar-item>
+        </hsc-menu-bar>
+    </hsc-menu-style-white>
+
     <canvas
       id="renderCanvas"
       ref="canvas"
@@ -20,6 +36,7 @@
   </div>
 </template>
 
+
 <script>
 import {
   Engine,
@@ -30,9 +47,14 @@ import {
   PointLight
 } from '@babylonjs/core'
 
+import Vue from 'vue'
 import * as BABYLON from "babylonjs"
 import { GLTFFileLoader } from "@babylonjs/loaders"
-// import HomunculusModel from "../../public/homunculus_fin.gltf"
+import * as VueMenu from '@hscmap/vue-menu'
+import VModal from 'vue-js-modal'
+
+Vue.use(VueMenu)
+Vue.use(VModal, { dialog: true })
 
 export default {
   name: 'Homunculus',
@@ -90,6 +112,9 @@ export default {
         this.morphHomunculus(homunculusState)
       }
     });
+
+    window.addEventListener('mouseMoved', this.mouseMoved);
+
   },
 
   beforeDestroy() {
@@ -104,6 +129,38 @@ export default {
     }
   },
   methods: {
+    openTutorialModal(){
+      this.$modal.show('dialog', {
+        title: 'How to',
+        text: '<i>Now wouldn\'t you like to know</i>',
+        buttons: [
+          {
+            title: 'Close'
+          }
+      ]
+      })
+    },
+    openAboutModal(){
+      this.$modal.show('dialog', {
+        title: 'About',
+        text: '<i>The Literary Homunculus</i>',
+        buttons: [
+          {
+            title: '<marquee>View other works</marquee>',
+            handler: () => { alert('Woot!') }
+          },
+          {
+            title: 'Close'
+          }
+      ]
+      })
+    },
+    openLinkOne(){
+      window.open("https://www.quora.com/Is-it-possible-to-create-a-homunculus-by-injecting-human-sperm-into-an-egg")
+    },
+    openLinkTwo(){
+      window.open("https://www.youtube.com/watch?v=HNLPXzlz6-I")
+    },
     updateHomunculusPart(e, meshName, targetName) {
       this.$store.commit("changeHomunculusPartByScheme", { sliderValue: e.srcElement.valueAsNumber, meshName, targetName } )
     },
@@ -138,8 +195,6 @@ export default {
         //set everything to zero, first - i realize that this is a terrible way to do it whatever
         await this.resetHomunculus(homunculusState)
         // whittle down to the parts we actually care about
-        console.log("HOMUNCULUS STATE UPON REQUESTED MORPHING", homunculusState)
-        console.log("parts that we want to morph")
         const bodyPartPaths = this.$store.getters.bodyParts
         const homunculusParts = Object.keys(homunculusState)
         const homunculusValues = Object.values(homunculusState)
@@ -168,7 +223,6 @@ export default {
                 var currentMorphInfluence = thisMorphTarget.influence
                 var newInfluence = partValue / maxValue
                 if (currentMorphInfluence < newInfluence){
-                  console.log(part, "=>", mesh, "=>", targetName, "=>", "from", thisMorphTarget.influence, "to", partValue / maxValue)
                   thisMorphTarget.influence = newInfluence // change the way we do maximum here
                 }
               }
@@ -298,6 +352,16 @@ export default {
       )
       camera.attachControl(this.$refs.canvas, true)
 
+      // var skybox = BABYLON.Mesh.CreateBox("skyBox", 100.0, scene);
+      // var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+      // skyboxMaterial.backFaceCulling = false;
+      // skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("background", scene);
+      // skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+      // skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+      // skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+      // skyboxMaterial.disableLighting = true;
+      // skybox.material = skyboxMaterial;
+
       // new HemisphericLight('light1', new Vector3(1, 1, 0), this.babylon.scene)
       // new HemisphericLight('light4', new Vector3(-2, -4, 0), this.babylon.scene)
       new HemisphericLight('light5', new Vector3(-2, 4, 0), this.babylon.scene)
@@ -318,6 +382,9 @@ export default {
 </script>
 
 <style lang="scss">
+hsc-menu-bar-item {
+  font-size: 13px
+}
 .Scene {
   position: relative;
   width: 100%;
@@ -330,5 +397,10 @@ export default {
   touch-action: none;
   outline: none;
   display: block;
+}
+
+.menubar {
+  position: absolute;
+  border-radius: 0 0 4pt 0;
 }
 </style>

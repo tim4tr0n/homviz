@@ -3,7 +3,7 @@
     <h3>Homunculus Stats</h3>
     <hr>
     <p><u>sampled works</u>: <i>({{stats.queriedBooks.length}} books queried)</i></p>
-    <div class="bookscontainer">
+    <div class="bookscontainer" id="bookscontainer">
         <div v-if="stats.queriedBooks.length == 0" class="defaultstats">
             <br>
             <loading :active.sync="stats.loadingBooks"
@@ -12,16 +12,21 @@
             <br>
             <h3><i>No books queried. Change your book parameters!</i></h3>
         </div>
-        <div v-else v-bind:class="{ selected: book == stats.selectedBook, bookitem: !(book == stats.selectedBook) }" v-for="(book, index) in stats.queriedBooks" @click="selectBook(book, index)" v-bind:key="book.idx">
-            <hr class="sub-breaker">
-            <b>{{ book.title }}</b>
-            <br>
-            <i>{{ formatAuthor(book.author) }}</i>
+        <div v-else v-bind:id="'index' + index" v-bind:class="{ selected: book == stats.selectedBook, bookitem: !(book == stats.selectedBook) }" v-for="(book, index) in stats.queriedBooks" @click="selectBook(book, index)" v-bind:key="book.idx">
+            <div>
+                <hr class="sub-breaker">
+                <b>{{ book.title }}</b>
+                <br>
+                <i>{{ formatAuthor(book.author) }}</i>
+            </div>
         </div>
     </div>
-    <hr class="sub-breaker">
-    <p><u>year range</u></p>
-    <h4><b>1840</b> - <b>1920</b></h4>
+    <div v-if="stats.viewByYearMode">
+        <hr class="sub-breaker">
+        <p><u>year range</u> <b>{{ stats.earliestYear }} - {{ stats.latestYear }}</b></p>
+
+        <div v-if="stats.selectedBook"> <p><u>selected year</u>  <b>{{ stats.selectedBook.publicationDate }} </b>  </p> </div>
+    </div>
     <hr class="sub-breaker">
     <p><u>body_state</u></p>
     <div class="bodypartscontainer">
@@ -46,10 +51,13 @@
 import Vue from 'vue'
 import * as VueWindow from '@hscmap/vue-window'
 import Loading from 'vue-loading-overlay';
+import anime from 'animejs'; // https://github.com/juliangarnier/anime
+// import VueScrollTo from 'vue-scrollto';
 // Import stylesheet
 import 'vue-loading-overlay/dist/vue-loading.css';
-Vue.use(VueWindow)
 
+Vue.use(VueWindow)
+// Vue.use(VueScrollTo)
 
 export default {
     name: 'Stats',
@@ -62,7 +70,8 @@ export default {
             bodyParts: this.$store.getters.bodyParts,
             selectedBook: this.$store.getters.selectedBook,
             isLoading: true,
-            loadingBooks: this.$store.getters.loadingBooks
+            loadingBooks: this.$store.getters.loadingBooks,
+            viewByYearMode: this.$store.getters.viewByYearMode
         }
     },
     computed: {
@@ -74,7 +83,10 @@ export default {
                 queriedBooks: this.$store.getters.queriedBooks,
                 selectedBook: this.$store.getters.selectedBook,
                 bodyParts: this.$store.getters.bodyParts,
-                loadingBooks: this.$store.getters.loadingBooks
+                loadingBooks: this.$store.getters.loadingBooks,
+                earliestYear: this.$store.getters.earliestYear,
+                latestYear: this.$store.getters.latestYear,
+                viewByYearMode: this.$store.getters.viewByYearMode
             }
         },
         bookBodyParts() {
@@ -92,10 +104,71 @@ export default {
             
         }
     },
+    mounted: function() {
+        // var options = {
+        //     container: '#bookscontainer',
+        //     easing: 'ease-in',
+        //     offset: -60,
+        //     force: true,
+        //     cancelable: true,
+        //     // onStart: function(element) {
+        //     // // scrolling started
+        //     // },
+        //     // onDone: function(element) {
+        //     // // scrolling is done
+        //     // },
+        //     // onCancel: function() {
+        //     // // scrolling has been interrupted
+        //     // },
+        //     // x: false,
+        //     // y: true
+        // }
+
+        this.$store.subscribe((mutation) => {
+            if( mutation.type == "changeSelectedBookIndex"){
+                console.log("attempting to scroll")
+                // var id = mutation.payload
+                this.scroll({ 
+                    to: ".selected"
+                });
+                // var cancelScroll = VueScrollTo.scrollTo(id, 300, options)
+                // cancelScroll()
+            }
+        });
+
+
+    },
     components: {
         Loading
     },
     methods: {
+        scroll(arg) {
+            let el = document.querySelector(arg.to),
+                offset = parseInt(arg.offset) || 0,
+                duration = arg.duration || 800,
+                easing = arg.easing || 'easeOutExpo',
+                callback = arg.callback || null;
+            console.log("el", el)
+            if ( el ) {
+                anime({
+                    targets: ['#bookscontainer'],
+                    scrollTop: (el.offsetTop - offset),
+                    duration: duration,
+                    easing: easing,
+                    complete: callback
+                })
+                .finished.then(() => {
+                    console.log("finished")
+                    this.$emit('scroll:finished', true);
+                });
+            }
+        },
+        getId(book){
+            if (book == this.stats.selectedBook){
+                return "selectedBookId"
+            }
+            return "standardBookId"
+        },
         selectBook: function(book, index){
             console.log(book, index)
             this.$store.dispatch('changeSelectedBookAndBodyState', { book, index } )
@@ -116,6 +189,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+    #selectedBookId {
+        
+    }
     .sub-breaker {
         opacity: 0.1;
         margin-top: 0px;

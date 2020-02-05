@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <!-- <Slide id="slide"/> -->
+    <Slide id="slide"/>
     <Selectors id="selectors"/>
     <Stats id="stats"/>
     <Homunculus id="homunculus"/>
@@ -9,7 +9,7 @@
 
 <script>
   import Homunculus from './components/Homunculus.vue';
-  // import Slide from './components/Slider.vue';
+  import Slide from './components/Slider.vue';
   import Stats from './components/Stats.vue';
   import Selectors from './components/Selectors.vue';
   import { firebase } from './firebaseConfig';
@@ -17,7 +17,7 @@
     name: 'app',
     components: {
       Homunculus,
-      // Slide,
+      Slide,
       Stats,
       Selectors
     },
@@ -67,6 +67,12 @@
 </script>
 
 <style>
+  html {
+    height: 100%; overflow: hidden;
+  }
+  body {
+    height: 100%; overflow: hidden;
+  }
   #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -86,6 +92,7 @@
   }
   #homunculus {
     width: 100%;
+    height: 100%;
     position: relative;
   }
   #selectors {
