@@ -14,6 +14,8 @@ apicache-py3/
 node_modules
 /dist
 visualize/src/credentials.js
+visualize/.firebaserc
+visualize/firebase.json
 /src/credentials.js
 
 # local env files

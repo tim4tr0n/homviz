@@ -143,11 +143,11 @@ export default {
     openAboutModal(){
       this.$modal.show('dialog', {
         title: 'About',
-        text: '<i>The Literary Homunculus</i>',
+        text: 'Homviz takes many books from Project Guttenberg and analyzes frequency of human anatomy, allowing a 3D visualization in the form of what we refer to as <strong>The Literary Homunculus</strong>. <br><br>Select a text from the vast Gutenberg corpus and watch with glee as different body parts scale in proportion to their number of mentions. Witness how various body parts dominate in literature across years, genres, and languages, all while being serenaded by beautiful, vintage jazz. <strong>Enjoy.</strong>',
         buttons: [
           {
-            title: '<marquee>View other works</marquee>',
-            handler: () => { alert('Woot!') }
+            title: '<marquee>🦐🤏💧🥚</marquee>',
+            handler: () => { alert('Copyright © Glowfish 2020. May our light guide legends.') }
           },
           {
             title: 'Close'
