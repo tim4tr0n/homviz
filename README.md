@@ -1,5 +1,5 @@
 # homviz - The Literary Homunculus
-**[View online @ homviz.net!](homviz.net)**
+**[View online @ homviz.net!](https://homviz.net)**
 
 The Homunculus Visualizer, a labor of love and intrigue
 
