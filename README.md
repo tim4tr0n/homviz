@@ -1,4 +1,4 @@
-# The Literary Homunculus
+# homviz - The Literary Homunculus
 The Homunculus Visualizer, a labor of love and intrigue
 
 Consider for yourself a homunculus. Now consider books. Our team worked to combine these seemingly incompatible concepts in a feat of engineering and artistry.
