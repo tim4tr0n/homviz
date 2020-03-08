@@ -17,6 +17,15 @@ Demo
 
 ![Demo #2](hom2gif.gif)
 
+
+VR Support
+-------------------
+![VR Demo](homvr.gif)
+
+homviz uses **WebVR** to enable VR support. Open [homviz.net](https://homviz.net) in a WebVR-enabled browser and connect your headset.
+
+We recommended Firefox for WebVR browsing (not yet available on Chrome, unfortunately).
+
 Repository Contents
 -------------------
 

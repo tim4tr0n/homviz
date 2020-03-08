@@ -10,6 +10,9 @@
                 <hsc-menu-item label="h̸͍̪̞͝ͅo̴̹̬̟̺̙̝̻̥̟͍͖̬͋̄́͊̔̾̈͛̏̈̚͘w̴͙̞̳̖̜̜̒̃̅̏" @click="openTutorialModal" />
                 <hsc-menu-item label="Cease" @click="window.alert('Save')" :disabled="true" />
             </hsc-menu-bar-item>
+            <hsc-menu-bar-item label="VR">
+              <hsc-menu-item label="Enable" @click="openVRModal" />
+            </hsc-menu-bar-item>
             <hsc-menu-bar-item label="Info">
                 <hsc-menu-item label="About" @click="openAboutModal" />
             </hsc-menu-bar-item>
@@ -41,7 +44,7 @@
 import {
   Engine,
   Scene,
-  ArcRotateCamera,
+  // ArcRotateCamera,
   Vector3,
   HemisphericLight,
   PointLight
@@ -155,6 +158,21 @@ export default {
       ]
       })
     },
+    openVRModal(){
+      this.$modal.show('dialog', {
+        title: 'Enter VR Mode',
+        text: 'homviz uses <u>WebVR</u> to enable VR support. Open homviz.net in a WebVR-enabled browser and connect your headset.<br><br>We recommended Firefox (not available on Chrome, unfortunately)',
+        buttons: [
+          {
+            title: 'Get Firefox VR',
+            handler: () => { window.location.href = 'https://support.mozilla.org/en-US/kb/view-virtual-reality-firefox-webvr'; }
+          },
+          {
+            title: 'Close'
+          }
+      ]
+      })
+    },
     openLinkOne(){
       window.open("https://www.quora.com/Is-it-possible-to-create-a-homunculus-by-injecting-human-sperm-into-an-egg")
     },
@@ -237,6 +255,7 @@ export default {
       BABYLON.SceneLoader.RegisterPlugin(new GLTFFileLoader())
       var sceneLoader = BABYLON.SceneLoader.Append("/", "homunculus_final_product.gltf", scene, async (meshes) => {
             // Create a default arc rotate camera and light.
+         
             scene.createDefaultCameraOrLight(true, true, true);
             scene.createDefaultEnvironment();
             scene.activeCamera.useAutoRotationBehavior = true;
@@ -253,12 +272,10 @@ export default {
             console.log("all meshes available", meshes)
 
             // var meshes = []
-            homModel = meshes.meshes[1] // TODO: grab this programmatically (at least for production)
+            homModel = meshes.meshes[2] // TODO: grab this programmatically (at least for production)
             console.log("homModel that we brought in!", homModel)
 
             console.log("morphTargetManager", homModel.morphTargetManager)
-
-            console.log("for loop morph  manager",  meshes.morphTargetManagers.length)
 
             var morphTargets = []
             for ( var managerIndex = 0; managerIndex < meshes.morphTargetManagers.length; managerIndex++){
@@ -269,13 +286,14 @@ export default {
               }
             }
             
-
+            console.log("total morphTargets")
+            console.log(morphTargets)
             // this is extremely dangerous. no guarantee that it loads in time. pls add promise or something
             console.log("manifest scheme output within THIS", this.manifestScheme)
 
             // populate morph target scheme
             var morphTargetScheme = {}
-            for ( var meshIndex = 1; meshIndex < meshes.meshes.length; meshIndex++){
+            for ( var meshIndex = 2; meshIndex < meshes.meshes.length; meshIndex++){
               var mesh = meshes.meshes[meshIndex]
               // console.log("mesh in loop:", mesh)
               var meshName = mesh.name
@@ -342,15 +360,52 @@ export default {
 
       this.importHom(scene)
 
-      var camera = new ArcRotateCamera(
-        'Camera',
-        Math.PI / 2,
-        Math.PI / 2,
-        2,
-        Vector3.Zero(),
+      // var camera = new BABYLON.ArcRotateCamera(
+      //   'Camera',
+      //   Math.PI / 2,
+      //   Math.PI / 2,
+      //   2,
+      //   Vector3.Zero(),
+      //   this.babylon.scene
+      // )
+      
+      
+      
+      // VR CHANGES
+      var camera = new BABYLON.WebVRFreeCamera(
+        "Camera",
+        new BABYLON.Vector3(
+          5,
+          Math.PI,
+          7,
+        ),
         this.babylon.scene
-      )
+      );
+
       camera.attachControl(this.$refs.canvas, true)
+
+      // scene.onPointerDown = function() {
+      //     scene.onPointerDown = undefined;
+      //     camera.attachControl(this.$refs.canvas, true);
+      // };
+
+      var vrHelper = scene.createDefaultVRExperience();
+
+      vrHelper.displayGaze = true ;
+      vrHelper.displayLaserPointer = true;
+      vrHelper.changeGazeColor(new BABYLON.Color3(1,1,1));
+      vrHelper.enableInteractions();
+
+      // Code for edge/Safari VR 
+      vrHelper.onEnteringVR.add(()=> {
+          scene.getEngine().isPointerLock = true;
+      })
+
+      vrHelper.onExitingVR.add( ()=> {
+          scene.getEngine().isPointerLock = false;
+      })
+      
+      //-----------------------------------------------
 
       // var skybox = BABYLON.Mesh.CreateBox("skyBox", 100.0, scene);
       // var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
