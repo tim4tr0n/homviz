@@ -4,8 +4,6 @@
     <hsc-menu-style-white class="menubar">
         <hsc-menu-bar >
             <hsc-menu-bar-item label="homviz">
-                <hsc-menu-item label="fertilize homunculus" @click="openLinkOne" />
-                <hsc-menu-item label="imbibe in the extract" @click="openLinkTwo" />
                 <hsc-menu-separator/>
                 <hsc-menu-item label="h̸͍̪̞͝ͅo̴̹̬̟̺̙̝̻̥̟͍͖̬͋̄́͊̔̾̈͛̏̈̚͘w̴͙̞̳̖̜̜̒̃̅̏" @click="openTutorialModal" />
                 <hsc-menu-item label="Cease" @click="window.alert('Save')" :disabled="true" />
